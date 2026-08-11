@@ -1,0 +1,10 @@
+.cache
+.vscode
+*.o
+venv
+xpacks
+blink.elf
+.DS_Store
+firmware.map
+lvgl_tmp
+stm32f4xx-hal-driver

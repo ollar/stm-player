@@ -1,0 +1,53 @@
+{
+  "name": "@<scope>/STM32F4-Bare-Metal-Guide",
+  "version": "0.1.0",
+  "description": "A source xPack with <your-description-here>",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<user-id>/STM32F4-Bare-Metal-Guide.git"
+  },
+  "homepage": "https://github.com/<user-id>/STM32F4-Bare-Metal-Guide/",
+  "bugs": {
+    "url": "https://github.com/<user-id>/STM32F4-Bare-Metal-Guide/issues/"
+  },
+  "keywords": [
+    "xpack"
+  ],
+  "author": {
+    "name": "Oleg Larkin",
+    "email": "oleg.larkin@nordigy.ru",
+    "url": "<author-url>"
+  },
+  "license": "MIT",
+  "config": {},
+  "dependencies": {},
+  "devDependencies": {},
+  "xpack": {
+    "minimumXpmRequired": "0.21.4",
+    "dependencies": {},
+    "devDependencies": {
+      "@xpack-dev-tools/arm-none-eabi-gcc": {
+        "specifier": "15.2.1-1.1.1",
+        "local": "link",
+        "platforms": "all"
+      }
+    },
+    "properties": {},
+    "actions": {
+      "build_o": "arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -std=c11 -g -O0 -c prog.c startup.c",
+      "dump_o": "arm-none-eabi-objdump -d prog.o",
+      "dump_elf": "arm-none-eabi-objdump -d prog.elf",
+      "size_o": "arm-none-eabi-size prog.o",
+      "size_elf": "arm-none-eabi-size blink.elf",
+      "_link_o": "arm-none-eabi-gcc --specs=nosys.specs prog.o -o prog.elf",
+      "link_o": "arm-none-eabi-gcc -nolibc -nostartfiles -T stm32f411.ld -Wl,--verbose prog.o startup.o -o prog.elf",
+      "objcopy": "arm-none-eabi-objcopy -O binary prog.elf prog.bin",
+      "flash": "st-flash write prog.bin 0x8000000"
+    },
+    "buildConfigurations": {}
+  }
+}

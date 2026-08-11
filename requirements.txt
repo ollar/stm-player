@@ -1,0 +1,4 @@
+bashlex==0.18
+click==8.4.2
+compiledb==0.10.7
+
