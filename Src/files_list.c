@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 Files_list_t files_list = {0};
+FATFS fs;
 
 static Files_list_t *create_files_list(void) { files_list.size = 0; };
 
@@ -35,7 +36,6 @@ HAL_StatusTypeDef get_sd_files_list(void) {
   FRESULT res;
   DIR dir;
   FILINFO finfo;
-  FATFS fs;
 
   res = f_mount(&fs, "", 1);
 

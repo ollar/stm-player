@@ -1,10 +1,21 @@
+#include "i2s_audio.h"
 #include "lvgl.h"
 #include "lvgl/widgets/lv_label.h"
 #include "oled_sh1107.h"
+#include "usart_init.h"
 
-lv_obj_t *create_no_card_screen(void) {
-  lv_obj_t *screen = lv_obj_create(NULL);
+extern char *current_track_name;
+
+uint8_t is_playing = 0;
+lv_obj_t *screen = {0};
+
+lv_obj_t *create_player_screen(void) {
+  screen = lv_obj_create(NULL);
   lv_obj_set_style_pad_all(screen, 0, 0);
+
+  hprintf_formatted("current_track_name %s\r\n", current_track_name);
+
+  sd_read_file();
 
   lv_obj_t *label = lv_label_create(screen);
   lv_label_set_text(label, "плеер");

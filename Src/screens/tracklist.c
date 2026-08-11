@@ -12,8 +12,11 @@ lv_obj_t *roller_main = NULL;
 extern Files_list_t files_list;
 extern Buttons_Set_t buttons_set;
 
+uint32_t current;
+char *current_track_name;
+
 static void on_encoder_change(int32_t enc_delta) {
-  uint32_t current = lv_roller_get_selected(roller_main);
+  current = lv_roller_get_selected(roller_main);
   int32_t new_sel = (int32_t)current + enc_delta;
 
   lv_roller_set_selected(roller_main, (uint32_t)new_sel, LV_ANIM_OFF);
@@ -21,8 +24,9 @@ static void on_encoder_change(int32_t enc_delta) {
 
 static void on_click_handler(uint32_t press_delta) {
   if (press_delta > 50 && press_delta < 500) {
-    hprintf_formatted("onclick %d\r\n", press_delta);
-    transition_to_screen(NO_SD_CARD_SCREEN);
+    current = lv_roller_get_selected(roller_main);
+    current_track_name = files_list.items[current];
+    transition_to_screen(PLAYER_SCREEN);
   }
 }
 

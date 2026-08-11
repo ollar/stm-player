@@ -54,7 +54,9 @@ HAL_StatusTypeDef sd_read_file() {
 
   i2s_deinit();
 
-  fr = f_open(&fil, "13.WAV", FA_READ);
+  fr = f_open(&fil, "11.WAV", FA_READ);
+
+  hprintf_formatted("file read res %d\r\n", fr);
   if (fr)
     return (int)fr;
 

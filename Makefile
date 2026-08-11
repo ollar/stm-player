@@ -67,8 +67,9 @@ SRCS += Src/fonts/ubuntu_mono_font.c
 
 SRCS += Src/files_list.c
 SRCS += Src/screens/router.c
-SRCS += Src/screens/main.c
+SRCS += Src/screens/tracklist.c
 SRCS += Src/screens/no_card.c
+SRCS += Src/screens/player.c
 
 SRCS += Src/encoder.c
 SRCS += Src/button.c

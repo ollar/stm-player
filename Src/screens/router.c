@@ -1,8 +1,9 @@
 #include "lvgl.h"
 
-#include "screens/main.h"
 #include "screens/no_card.h"
+#include "screens/player.h"
 #include "screens/router.h"
+#include "screens/tracklist.h"
 
 void transition_to_screen(SCREEN_NAMES_ENUM screen_name) {
   lv_obj_t *screen = {0};
@@ -14,7 +15,7 @@ void transition_to_screen(SCREEN_NAMES_ENUM screen_name) {
   }
 
   case PLAYER_SCREEN: {
-
+    screen = create_player_screen();
     break;
   }
 
