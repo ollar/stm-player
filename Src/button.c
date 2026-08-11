@@ -5,8 +5,6 @@
 Buttons_Set_t buttons_set = {0};
 
 Button_t *button_init(GPIO_TypeDef *port, uint16_t pin) {
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-
   GPIO_InitTypeDef gpio = {0};
   gpio.Pin = pin;
   gpio.Mode = GPIO_MODE_INPUT;

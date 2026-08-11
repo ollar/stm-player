@@ -24,7 +24,7 @@
 #include "stm32f4xx_hal.h"
 
 #define BUTTON_PORT GPIOB
-#define BUTTON_PIN GPIO_PIN_0
+#define BUTTON_PIN GPIO_PIN_4
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/

@@ -75,9 +75,11 @@ int main(void) {
 
   while (1) {
 
-    lv_timer_handler();
-    buttons_listen_change();
-    encoder_listen_change();
+    if (system_tick > 500) {
+      lv_timer_handler();
+      buttons_listen_change();
+      encoder_listen_change();
+    }
 
     if (system_tick % 200 == 0) {
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
