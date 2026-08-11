@@ -66,6 +66,7 @@ SRCS += Src/lv_port_disp.c
 SRCS += Src/fonts/ubuntu_mono_font.c
 
 SRCS += Src/files_list.c
+SRCS += Src/screens/router.c
 SRCS += Src/screens/main.c
 SRCS += Src/screens/no_card.c
 
@@ -80,7 +81,6 @@ SRCS += Src/sd_card/sd_spi.c
 SRCS += Src/sd_card/sd_functions.c
 
 LVGL_C_SOURCES := $(shell find Middlewares/LVGL/src -name '*.c')
-# FatFs_C_SOURCES := $(shell find Src/sd_card/FatFs -name '*.c')
 FatFs_C_SOURCES := $(shell find Middlewares/FatFs -name '*.c')
 
 ASRCS = Startup/startup.s

@@ -13,12 +13,12 @@ void encoder_init(void) {
 
   /* --- PA0 / PA1 в режиме альтернативной функции TIM2 --- */
   GPIO_InitTypeDef gpio = {0};
-  gpio.Pin = GPIO_PIN_0 | GPIO_PIN_1;
+  gpio.Pin = ENCODER_PIN_A | ENCODER_PIN_B;
   gpio.Mode = GPIO_MODE_AF_PP;
   gpio.Pull = GPIO_PULLUP; // голое колесико → нужна подтяжка
   gpio.Speed = GPIO_SPEED_FREQ_LOW;
   gpio.Alternate = GPIO_AF1_TIM2;
-  HAL_GPIO_Init(GPIOA, &gpio);
+  HAL_GPIO_Init(ENCODER_PORT, &gpio);
 
   /* --- TIM2: Encoder Interface Mode, канал 1 и 2 --- */
   htim2.Instance = TIM2;
@@ -56,7 +56,7 @@ int32_t encoder_get_delta(void) {
   int16_t delta = (int16_t)(current - last_counter);
 
   remainder += delta;
-  int32_t clicks = remainder / 2; // x4 режим → 4 тика = 1 щелчок
+  int32_t clicks = remainder / 2;
   remainder %= 2;
 
   last_counter = current;
@@ -77,7 +77,11 @@ void set_enc_change_handler(void (*change_handler)(int32_t enc_delta)) {
   enc_change_handler = change_handler;
 }
 
-void encoder_handle_change(void) {
+void clear_enc_change_handler(void) {
+  enc_change_handler = dummy_enc_change_handler;
+}
+
+void encoder_listen_change(void) {
   int32_t enc_delta = encoder_get_delta();
 
   if (enc_delta == 0) {

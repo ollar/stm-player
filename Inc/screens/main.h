@@ -1,2 +1,3 @@
-void create_main_screen(void);
-// static void get_sd_files_list(void);
+#include "lvgl.h"
+
+lv_obj_t *create_main_screen(void);

@@ -18,7 +18,9 @@ Button_t *button_init(GPIO_TypeDef *port, uint16_t pin) {
   Button_t button = {0};
   button.pin = pin;
   button.port = port;
-  button.button_onclick_handler = &button_click_handler_dummy;
+  button.onclick_handler = &button_click_handler_dummy;
+  button.onpress_handler = &button_press_handler_dummy;
+  button.onrelease_handler = &button_press_handler_dummy;
 
   buttons_set.buttons[buttons_set.length] = button;
   buttons_set.length++;
@@ -45,13 +47,15 @@ void buttons_listen_change(void) {
 
     if (is_low_to_high(button->state, button_new_state)) {
       button->press_start = HAL_GetTick();
+      button->onpress_handler();
     }
 
     if (is_high_to_low(button->state, button_new_state)) {
       uint32_t button_press_end = HAL_GetTick();
       uint32_t pressed_time_delta = button_press_end - button->press_start;
 
-      button->button_onclick_handler(pressed_time_delta);
+      button->onclick_handler(pressed_time_delta);
+      button->onrelease_handler();
     }
 
     button->state = button_new_state;
@@ -60,9 +64,29 @@ void buttons_listen_change(void) {
 
 void set_button_onclick_handler(Button_t *button,
                                 void (*new_onclick_handler)(uint32_t)) {
-  button->button_onclick_handler = new_onclick_handler;
+  button->onclick_handler = new_onclick_handler;
 }
 
-void clear_button_onclick_handler(Button_t *button) {
-  button->button_onclick_handler = &button_click_handler_dummy;
+void set_button_onpress_handler(Button_t *button,
+                                void (*new_onpress_handler)(void)) {
+  button->onpress_handler = new_onpress_handler;
+}
+
+void set_button_onrelease_handler(Button_t *button,
+                                  void (*new_onrelease_handler)(void)) {
+  button->onrelease_handler = new_onrelease_handler;
+}
+
+void clear_button_event_handlers(Button_t *button) {
+  button->onclick_handler = &button_click_handler_dummy;
+  button->onpress_handler = &button_press_handler_dummy;
+  button->onrelease_handler = &button_press_handler_dummy;
+}
+
+void clear_buttons_event_handlers(void) {
+  for (uint8_t i = 0; i < buttons_set.length; i++) {
+    Button_t *button = &buttons_set.buttons[i];
+
+    clear_button_event_handlers(button);
+  }
 }

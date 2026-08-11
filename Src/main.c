@@ -1,4 +1,5 @@
 #include "main.h"
+#include "button.h"
 #include "lv_port_disp.h"
 #include "lvgl.h"
 #include "stm32f4xx_hal.h"
@@ -8,10 +9,10 @@
 #include <string.h>
 
 #include "files_list.h"
-#include "screens/main.h"
-#include "screens/no_card.h"
+#include "screens/router.h"
 #include "sd_spi.h"
 
+#include "button.h"
 #include "encoder.h"
 
 uint64_t system_tick = 0;
@@ -27,7 +28,6 @@ int main(void) {
   HAL_Init();
   SystemClock_Config();
   usart1_init();
-  encoder_init();
 
   /**
    * Initialize debugging led
@@ -54,17 +54,21 @@ int main(void) {
   lv_port_disp_init();
 
   /**
+   * Initialize buttons
+   */
+
+  encoder_init();
+  button_init(BUTTON_PORT, BUTTON_PIN);
+
+  /**
    * Main program code
    */
   HAL_StatusTypeDef res = get_sd_files_list();
 
-  lv_obj_t *no_card_screen = create_no_card_screen();
-  create_main_screen();
-
   if (res != HAL_OK) {
-    lv_screen_load(no_card_screen);
+    transition_to_screen(NO_SD_CARD_SCREEN);
   } else {
-    lv_screen_load(screen_main);
+    transition_to_screen(TRACKLIST_SCREEN);
   }
 
   hprintf("mehe");
@@ -72,7 +76,8 @@ int main(void) {
   while (1) {
 
     lv_timer_handler();
-    encoder_handle_change();
+    buttons_listen_change();
+    encoder_listen_change();
 
     if (system_tick % 200 == 0) {
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
