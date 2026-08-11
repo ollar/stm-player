@@ -17,7 +17,7 @@ INCS = -I CMSIS/Device/Include \
 			-I HAL/Include \
 			-I Middlewares/LVGL \
 			-I Middlewares/LVGL/include \
-			-I Src/sd_card/FatFs \
+			-I Middlewares/FatFs \
 			-I Src/sd_card/inc \
 			-I Src/audio/inc \
 			-I Inc
@@ -80,7 +80,8 @@ SRCS += Src/sd_card/sd_spi.c
 SRCS += Src/sd_card/sd_functions.c
 
 LVGL_C_SOURCES := $(shell find Middlewares/LVGL/src -name '*.c')
-FatFs_C_SOURCES := $(shell find Src/sd_card/FatFs -name '*.c')
+# FatFs_C_SOURCES := $(shell find Src/sd_card/FatFs -name '*.c')
+FatFs_C_SOURCES := $(shell find Middlewares/FatFs -name '*.c')
 
 ASRCS = Startup/startup.s
 

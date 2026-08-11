@@ -61,6 +61,7 @@ void lv_port_disp_init(void) {
    * Create a display and set a flush_cb
    * -----------------------------------*/
   lv_display_t *disp = lv_display_create(OLED_HEIGHT, OLED_WIDTH);
+  // lv_display_set_rotation(NULL, LV_DISPLAY_ROTATION_270);
   lv_display_set_color_format(disp, LV_COLOR_FORMAT_I1);
   lv_theme_t *th = lv_theme_mono_init(disp, true, LV_FONT_DEFAULT);
   lv_display_set_theme(disp, th);

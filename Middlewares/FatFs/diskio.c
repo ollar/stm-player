@@ -7,14 +7,10 @@
 /* storage control modules to the FatFs module with a defined API.       */
 /*-----------------------------------------------------------------------*/
 
-#include "stm32f4xx_hal.h"
-
 #include "ff.h" /* Basic definitions of FatFs */
 
 #include "diskio.h" /* Declarations FatFs MAI */
-#include "sd_card_spi.h"
-
-static DSTATUS disk_status_flag = STA_NOINIT; // 0x01 = не инициализирован
+#include "sd_functions.h"
 
 /*-----------------------------------------------------------------------*/
 /* Get Drive Status                                                      */
@@ -22,10 +18,7 @@ static DSTATUS disk_status_flag = STA_NOINIT; // 0x01 = не инициализ�
 
 DSTATUS disk_status(BYTE pdrv /* Physical drive nmuber to identify the drive */
 ) {
-  if (pdrv != 0)
-    return STA_NOINIT;
-
-  return disk_status_flag;
+  return SD_disk_status(pdrv);
 }
 
 /*-----------------------------------------------------------------------*/
@@ -35,18 +28,13 @@ DSTATUS disk_status(BYTE pdrv /* Physical drive nmuber to identify the drive */
 DSTATUS
 disk_initialize(BYTE pdrv /* Physical drive nmuber to identify the drive */
 ) {
-  if (pdrv != 0)
-    return STA_NOINIT;
+  DSTATUS res = SD_disk_initialize(pdrv);
 
-  if (SD_init() == HAL_OK) {
-    disk_status_flag &= ~STA_NOINIT;
-
-    return disk_status_flag;
+  if (res == FR_OK) {
+    SD_Increase_Speed();
   }
 
-  disk_status_flag |= STA_NOINIT;
-
-  return disk_status_flag;
+  return res;
 }
 
 /*-----------------------------------------------------------------------*/
@@ -58,21 +46,7 @@ DRESULT disk_read(BYTE pdrv,  /* Physical drive nmuber to identify the drive */
                   LBA_t sector, /* Start sector in LBA */
                   UINT count    /* Number of sectors to read */
 ) {
-  if (pdrv != 0 || buff == NULL || count == 0) {
-    return RES_PARERR; // Параметры неверные
-  }
-
-  // Проверяем, инициализирован ли диск
-  if (disk_status_flag & STA_NOINIT) {
-    return RES_NOTRDY; // Диск не готов
-  }
-
-  if (SD_ReadBlocks_DMA(sector, buff, count) == HAL_OK) {
-    // if (SD_ReadBlocks_CPU(sector, buff, count) == HAL_OK) {
-    return RES_OK; // Успешно
-  } else {
-    return RES_ERROR; // Ошибка чтения
-  }
+  return SD_disk_read(pdrv, buff, sector, count);
 }
 
 /*-----------------------------------------------------------------------*/
@@ -86,39 +60,7 @@ DRESULT disk_write(BYTE pdrv, /* Physical drive nmuber to identify the drive */
                    LBA_t sector,     /* Start sector in LBA */
                    UINT count        /* Number of sectors to write */
 ) {
-  DRESULT res;
-  int result;
-
-  switch (pdrv) {
-  case DEV_RAM:
-    // translate the arguments here
-
-    result = RAM_disk_write(buff, sector, count);
-
-    // translate the reslut code here
-
-    return res;
-
-  case DEV_MMC:
-    // translate the arguments here
-
-    result = MMC_disk_write(buff, sector, count);
-
-    // translate the reslut code here
-
-    return res;
-
-  case DEV_USB:
-    // translate the arguments here
-
-    result = USB_disk_write(buff, sector, count);
-
-    // translate the reslut code here
-
-    return res;
-  }
-
-  return RES_PARERR;
+  return SD_disk_write(pdrv, buff, sector, count);
 }
 
 #endif
@@ -131,25 +73,5 @@ DRESULT disk_ioctl(BYTE pdrv, /* Physical drive nmuber (0..) */
                    BYTE cmd,  /* Control code */
                    void *buff /* Buffer to send/receive control data */
 ) {
-  switch (cmd) {
-  case GET_SECTOR_COUNT:
-    // Возвращаем общее количество секторов на карте
-    *(DWORD *)buff = SD_GetSectorCount();
-    break;
-  case GET_SECTOR_SIZE:
-    // Возвращаем размер сектора (обычно 512 байт)
-    *(WORD *)buff = 512;
-    break;
-  case GET_BLOCK_SIZE:
-    // Возвращаем размер блока для операций стирания (обычно 1)
-    *(DWORD *)buff = 1;
-    break;
-  case CTRL_SYNC:
-    // Синхронизация кэша (для записи)
-    // При чтении ничего не делаем
-    break;
-  default:
-    return RES_PARERR;
-  }
-  return RES_OK;
+  return SD_disk_ioctl(pdrv, cmd, buff);
 }

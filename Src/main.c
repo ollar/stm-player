@@ -67,7 +67,7 @@ int main(void) {
     lv_screen_load(screen_main);
   }
 
-  // hprintf("mehe");
+  hprintf("mehe");
 
   while (1) {
 

@@ -10,6 +10,7 @@ lv_obj_t *create_no_card_screen(void) {
   lv_obj_set_width(label, 128);
 
   lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+  lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
 
   return screen;
 }
