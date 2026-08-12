@@ -78,68 +78,6 @@ void OLED_SendDataBuffer(uint8_t *buffer, uint16_t size) {
   HAL_GPIO_WritePin(OLED_PORT, OLED_CS_PIN, GPIO_PIN_SET);
 }
 
-// void OLED_Init() {
-//   MX_GPIO_Init();
-//   MX_SPI1_Init();
-//
-//   HAL_Delay(100);
-//
-//   // Аппаратный сброс дисплея
-//   HAL_GPIO_WritePin(GPIOB, OLED_RES_PIN, GPIO_PIN_RESET);
-//   HAL_Delay(20);
-//   HAL_GPIO_WritePin(GPIOB, OLED_RES_PIN, GPIO_PIN_SET);
-//   HAL_Delay(50);
-//
-//   // --- Инициализация SH1107 (128x128) ---
-//   OLED_SendCommand(0xAE); // Display OFF
-//
-//   OLED_SendCommand(0xD5); // Set Osc Frequency
-//   OLED_SendCommand(0x50); // Рекомендуемое значение
-//
-//   OLED_SendCommand(0xA8); // Set Multiplex Ratio
-//   OLED_SendCommand(0x7F); // 128 строк (0x7F = 127 + 1)
-//
-//   OLED_SendCommand(0xD3); // Set Display Offset
-//   OLED_SendCommand(0x00); // Без смещения
-//
-//   // OLED_SendCommand(0x40 | 0x00); // Set Display Start Line = 0     # ?????
-//   OLED_SendCommand(0xDC); // ???
-//   OLED_SendCommand(0x00); // ???
-//
-//   OLED_SendCommand(0xAD); // DC/DC Control Mode (SH1107!)
-//   // OLED_SendCommand(0x8B); // Internal VCC (встроенный DC/DC включен)
-//   OLED_SendCommand(0x8A); // Internal VCC (встроенный DC/DC включен)
-//   // Попробуй 0x8A, если 0x8B не заработает (external VCC, но обычно 0x8B)
-//
-//   OLED_SendCommand(0x81); // Set Contrast
-//   OLED_SendCommand(0x7F); // Средний контраст (попробуй 0xFF для максимума)
-//
-//   OLED_SendCommand(0xA1); // Segment Re-map (инверсия по X)
-//   // Попробуй 0xA0, если картинка зеркальная
-//
-//   OLED_SendCommand(0xC8); // COM Output Scan Direction (снизу вверх)
-//   // Попробуй 0xC0, если картинка перевернута
-//
-//   OLED_SendCommand(0xA6); // Normal display (не инвертированный)
-//                           // Попробуй 0xA7, если фон и текст инвертированы
-//
-//   OLED_SendCommand(0x20); // Set Addressing Mode
-//   OLED_SendCommand(0x00); // Set Addressing Mode paged
-//
-//   // OLED_SendCommand(0x20); // Set Addressing Mode
-//   // OLED_SendCommand(0x01); // 00 = Horizontal
-//   //
-//   // OLED_SendCommand(0x21); // Set Column Address
-//   // OLED_SendCommand(0x00); // start
-//   // OLED_SendCommand(0x7F); // end (127)
-//   //
-//   // OLED_SendCommand(0x22); // Set Page Address
-//   // OLED_SendCommand(0x00); // start
-//   // OLED_SendCommand(0x0F); // end (15)
-//   //
-//   OLED_SendCommand(0xAF); // Display ON
-// }
-
 void OLED_Init() {
   MX_SPI1_Init();
 

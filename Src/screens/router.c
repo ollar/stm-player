@@ -12,7 +12,7 @@ void transition_to_screen(SCREEN_NAMES_ENUM screen_name) {
     lv_obj_del(prev_screen);
     prev_screen = NULL;
   }
-  lv_obj_t *screen = {0};
+  lv_obj_t *screen = NULL;
 
   switch (screen_name) {
   case NO_SD_CARD_SCREEN: {
