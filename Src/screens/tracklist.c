@@ -6,7 +6,6 @@
 
 #include "screens/router.h"
 
-lv_obj_t *screen_main = NULL;
 lv_obj_t *roller_main = NULL;
 
 extern Files_list_t files_list;
@@ -38,7 +37,7 @@ lv_obj_t *create_main_screen(void) {
   Button_t *button = &buttons_set.buttons[0];
   set_button_onclick_handler(button, on_click_handler);
 
-  screen_main = lv_obj_create(NULL);
+  lv_obj_t *screen_main = lv_obj_create(NULL);
   lv_obj_set_style_pad_all(screen_main, 0, 0);
 
   roller_main = lv_roller_create(screen_main);
