@@ -54,6 +54,9 @@ typedef struct {
   uint16_t bytes_per_frame;
   uint8_t dataformat;
   uint8_t number_of_channels;
+  uint32_t chunk_size;
+  uint32_t byte_rate;
+  uint32_t bytes_read;
   uint16_t *audio_buffer;
   uint8_t *raw;
 } Audio_Data_t;

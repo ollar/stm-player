@@ -15,11 +15,17 @@
 #include "button.h"
 #include "encoder.h"
 
-uint64_t system_tick = 0;
+volatile uint32_t system_tick = 0;
 
 extern lv_obj_t *screen_main;
 
 static void SystemClock_Config(void);
+
+static void my_rerender_timer_cb(lv_timer_t *timer) {
+  if (rerender_func != NULL) {
+    rerender_func();
+  }
+}
 
 int main(void) {
   /*
@@ -38,6 +44,7 @@ int main(void) {
   gpio.Mode = GPIO_MODE_OUTPUT_PP;
   HAL_GPIO_Init(GPIOC, &gpio);
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+  uint32_t last_led_toggle = 0;
 
   /**
    * Initialize SD card
@@ -52,6 +59,7 @@ int main(void) {
   lv_init();
   lv_tick_set_cb(HAL_GetTick);
   lv_port_disp_init();
+  lv_timer_create(my_rerender_timer_cb, 50, NULL);
 
   /**
    * Initialize buttons
@@ -71,8 +79,6 @@ int main(void) {
     transition_to_screen(TRACKLIST_SCREEN);
   }
 
-  hprintf("mehe");
-
   while (1) {
 
     if (system_tick > 500) {
@@ -81,8 +87,9 @@ int main(void) {
       encoder_listen_change();
     }
 
-    if (system_tick % 200 == 0) {
+    if (system_tick - last_led_toggle >= 200) {
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      last_led_toggle = system_tick;
     }
 
     HAL_Delay(5);

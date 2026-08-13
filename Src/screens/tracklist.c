@@ -30,9 +30,6 @@ static void on_click_handler(uint32_t press_delta) {
 }
 
 lv_obj_t *create_main_screen(void) {
-  clear_buttons_event_handlers();
-  clear_enc_change_handler();
-
   set_enc_change_handler(on_encoder_change);
   Button_t *button = &buttons_set.buttons[0];
   set_button_onclick_handler(button, on_click_handler);

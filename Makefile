@@ -63,7 +63,7 @@ SRCS += Src/usart_init.c
 
 SRCS += Src/oled_sh1107.c
 SRCS += Src/lv_port_disp.c
-SRCS += Src/fonts/ubuntu_mono_font.c
+SRCS += Src/fonts/ubuntu_mono.c
 
 SRCS += Src/files_list.c
 SRCS += Src/screens/router.c

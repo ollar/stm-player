@@ -3,6 +3,7 @@
 #include "i2s_common.h"
 #include "i2s_init.h"
 #include "i2s_utils.h"
+#include "lvgl/stdlib/lv_string.h"
 #include "stm32f4xx_hal.h"
 #include "usart_init.h"
 #include <stdlib.h>
@@ -17,6 +18,8 @@ UINT br;
 static uint16_t *audio_buffer;
 static uint8_t *raw;
 
+uint8_t is_playing = 1;
+
 static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
   UINT br;
 
@@ -24,11 +27,20 @@ static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
   uint8_t bytes_per_channel = bytes_per_frame / audio_data.number_of_channels;
   uint8_t dataformat = audio_data.dataformat;
 
+  if (!is_playing) {
+    lv_memset(buf, 0,
+              frames * audio_data.number_of_channels *
+                  audio_data.bytes_per_frame);
+    return;
+  }
+
   if (f_read(fp, audio_data.raw, frames * bytes_per_frame, &br) != FR_OK)
     br = 0;
 
   uint8_t *current_byte_pointer = audio_data.raw;
   uint16_t samples_read = br / bytes_per_frame; // 512
+
+  audio_data.bytes_read += br;
 
   for (uint16_t i = 0; i < frames; i++) {
     int32_t left = 0, right = 0;
@@ -56,7 +68,6 @@ HAL_StatusTypeDef sd_read_file() {
 
   fr = f_open(&fil, "11.WAV", FA_READ);
 
-  hprintf_formatted("file read res %d\r\n", fr);
   if (fr)
     return (int)fr;
 
@@ -77,6 +88,9 @@ HAL_StatusTypeDef sd_read_file() {
       .bytes_per_frame = header->block_align,
       .dataformat = get_i2s_dataformat(header),
       .number_of_channels = header->number_of_channels,
+      .chunk_size = header->chunk_size,
+      .byte_rate = header->byte_rate,
+      .bytes_read = 0,
       .audio_buffer = audio_buffer,
       .raw = raw,
   };
