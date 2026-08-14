@@ -4,6 +4,7 @@
 #include "i2s_init.h"
 #include "i2s_utils.h"
 #include "lvgl/stdlib/lv_string.h"
+#include "screens/player.h"
 #include "stm32f4xx_hal.h"
 #include "usart_init.h"
 #include <stdlib.h>
@@ -18,7 +19,7 @@ UINT br;
 static uint16_t *audio_buffer;
 static uint8_t *raw;
 
-uint8_t is_playing = 1;
+extern Player_state_t player_state;
 
 static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
   UINT br;
@@ -27,7 +28,7 @@ static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
   uint8_t bytes_per_channel = bytes_per_frame / audio_data.number_of_channels;
   uint8_t dataformat = audio_data.dataformat;
 
-  if (!is_playing) {
+  if (!player_state.is_playing) {
     lv_memset(buf, 0,
               frames * audio_data.number_of_channels *
                   audio_data.bytes_per_frame);
@@ -46,10 +47,13 @@ static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
     int32_t left = 0, right = 0;
 
     if (i < samples_read) {
-      left = pcm24_to_i32(current_byte_pointer, dataformat);
+      int32_t raw_left = pcm24_to_i32(current_byte_pointer, dataformat);
       current_byte_pointer += bytes_per_channel;
-      right = pcm24_to_i32(current_byte_pointer, dataformat);
+      int32_t raw_right = pcm24_to_i32(current_byte_pointer, dataformat);
       current_byte_pointer += bytes_per_channel;
+
+      left = (int32_t)(raw_left * player_state.volume);
+      right = (int32_t)(raw_right * player_state.volume);
     }
 
     uint32_t ul = ((uint32_t)left) << 8;

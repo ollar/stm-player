@@ -24,11 +24,11 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s_ptr) {
   gpio.Pull = GPIO_NOPULL;
   gpio.Speed = GPIO_SPEED_FREQ_HIGH;
   gpio.Alternate = GPIO_AF6_SPI3;
-  HAL_GPIO_Init(GPIOA, &gpio);
+  HAL_GPIO_Init(I2S_LCK_PORT, &gpio);
 
   /* PB3 -> I2S3_CK, PB5 -> I2S3_SD (AF6) */
   gpio.Pin = I2S_PIN_BCK | I2S_PIN_DIN;
-  HAL_GPIO_Init(GPIOB, &gpio);
+  HAL_GPIO_Init(I2S_BCK_PORT, &gpio);
 
   /* DMA1 Stream7 Channel0 */
   hdma_spi3_tx.Instance = DMA1_Stream7;
