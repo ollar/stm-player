@@ -39,6 +39,9 @@ static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
   if (f_read(fp, audio_data.raw, frames * bytes_per_frame, &br) != FR_OK)
     br = 0;
 
+  if (br < frames) {
+  }
+
   uint8_t *current_byte_pointer = audio_data.raw;
   uint16_t samples_read = br / bytes_per_frame; // 512
 
@@ -109,25 +112,20 @@ HAL_StatusTypeDef sd_read_file(char *filename) {
   fill_audio(&fil, audio_data.audio_buffer, audio_data.audio_half_frames);
   HAL_I2S_Transmit_DMA(&hi2s, audio_data.audio_buffer,
                        audio_data.audio_half_frames * 4);
-
-  hprintf("mehe");
-
-  // free(audio_buffer);
-  // free(raw);
-
-  /* Close the file */
-  // f_close(&fil);
 }
 
 HAL_StatusTypeDef sd_close_file(void) {
-  HAL_I2S_DMAStop(&hi2s);
-  lv_memset(audio_data.audio_buffer, 0, audio_data.audio_half_frames * 4);
+  HAL_StatusTypeDef status = HAL_I2S_DMAStop(&hi2s);
 
-  free(audio_buffer);
-  free(raw);
+  if (audio_data.audio_buffer != NULL) {
+    lv_memset(audio_data.audio_buffer, 0,
+              audio_data.audio_half_frames * audio_data.number_of_channels *
+                  audio_data.bytes_per_frame);
+  }
 
-  /* Close the file */
   f_close(&fil);
+
+  return status;
 }
 
 void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s) {

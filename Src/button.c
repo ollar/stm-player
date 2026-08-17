@@ -52,8 +52,8 @@ void buttons_listen_change(void) {
       uint32_t button_press_end = HAL_GetTick();
       uint32_t pressed_time_delta = button_press_end - button->press_start;
 
-      button->onclick_handler(pressed_time_delta);
       button->onrelease_handler();
+      button->onclick_handler(pressed_time_delta);
     }
 
     button->state = button_new_state;

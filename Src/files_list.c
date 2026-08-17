@@ -2,13 +2,15 @@
 #include "ff.h"
 #include "lvgl/stdlib/lv_string.h"
 #include "stm32f4xx_hal.h"
-// #include "usart_init.h"
 #include <stdint.h>
 
 Files_list_t files_list = {0};
 FATFS fs;
 
-static Files_list_t *create_files_list(void) { files_list.size = 0; };
+static Files_list_t *create_files_list(void) {
+  files_list.size = 0;
+  files_list.current = 0;
+};
 
 static HAL_StatusTypeDef push_item(char *item) {
   char *copy = lv_strdup(item);
@@ -75,3 +77,7 @@ HAL_StatusTypeDef get_sd_files_list(void) {
 
   return HAL_OK;
 }
+
+char *get_current_track_name(void) {
+  return files_list.items[files_list.current];
+};

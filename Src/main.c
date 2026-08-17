@@ -17,8 +17,6 @@
 
 volatile uint32_t system_tick = 0;
 
-extern lv_obj_t *screen_main;
-
 static void SystemClock_Config(void);
 
 static void my_rerender_timer_cb(lv_timer_t *timer) {
@@ -78,6 +76,8 @@ int main(void) {
   } else {
     transition_to_screen(TRACKLIST_SCREEN);
   }
+
+  hprintf("mehe\r\n");
 
   while (1) {
 

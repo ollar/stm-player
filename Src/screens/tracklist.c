@@ -11,20 +11,16 @@ lv_obj_t *roller_main = NULL;
 extern Files_list_t files_list;
 extern Buttons_Set_t buttons_set;
 
-uint32_t current;
-char *current_track_name;
-
 static void on_encoder_change(int32_t enc_delta) {
-  current = lv_roller_get_selected(roller_main);
-  int32_t new_sel = (int32_t)current + enc_delta;
+  files_list.current = lv_roller_get_selected(roller_main);
+  int8_t new_sel = files_list.current + enc_delta;
 
-  lv_roller_set_selected(roller_main, (uint32_t)new_sel, LV_ANIM_OFF);
+  lv_roller_set_selected(roller_main, new_sel, LV_ANIM_OFF);
 }
 
 static void on_click_handler(uint32_t press_delta) {
   if (press_delta > 50 && press_delta < 500) {
-    current = lv_roller_get_selected(roller_main);
-    current_track_name = files_list.items[current];
+    files_list.current = lv_roller_get_selected(roller_main);
     transition_to_screen(PLAYER_SCREEN);
   }
 }
@@ -44,6 +40,7 @@ lv_obj_t *create_main_screen(void) {
   lv_obj_set_size(roller_main, 128, 128);
   lv_roller_set_visible_row_count(roller_main, 8);
   lv_obj_align(roller_main, LV_ALIGN_TOP_LEFT, 0, 0);
+  lv_roller_set_selected(roller_main, files_list.current, LV_ANIM_OFF);
 
   return screen_main;
 }

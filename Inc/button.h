@@ -24,5 +24,8 @@ Button_t *button_init(GPIO_TypeDef *, uint16_t);
 void buttons_listen_change(void);
 void set_button_onclick_handler(Button_t *,
                                 void (*new_onclick_handler)(uint32_t));
+void set_button_onpress_handler(Button_t *, void (*new_onpress_handler)(void));
+void set_button_onrelease_handler(
+    Button_t *, void (*new_onrelease_handler_onrelease_handler)(void));
 void clear_button_event_handlers(Button_t *);
 void clear_buttons_event_handlers(void);
