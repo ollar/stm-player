@@ -44,13 +44,20 @@ static void player_onclick_handler(uint32_t press_delta) {
   }
 
   if (press_delta > 1000) {
+    sd_close_file();
     transition_to_screen(TRACKLIST_SCREEN);
   }
 }
 
 static void player_enc_onchange(int32_t enc_delta) {
+  if (current_volume_ind == 6 && enc_delta > 0 ||
+      current_volume_ind == 0 && enc_delta < 0) {
+    current_volume_ind -= enc_delta;
+  }
 
-  hprintf_formatted("enc_delta %d\r\n", enc_delta);
+  current_volume_ind += enc_delta;
+
+  player_state.volume = volumes_table[current_volume_ind];
 }
 
 lv_obj_t *create_player_screen(void) {
@@ -62,7 +69,9 @@ lv_obj_t *create_player_screen(void) {
   lv_obj_t *player_screen = lv_obj_create(NULL);
   lv_obj_set_style_pad_all(player_screen, 0, 0);
 
-  sd_read_file();
+  player_state.is_playing = 1;
+
+  sd_read_file(current_track_name);
 
   lv_obj_t *label = lv_label_create(player_screen);
   lv_label_set_text(label, current_track_name);

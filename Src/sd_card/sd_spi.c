@@ -28,7 +28,7 @@ void SD_InitSPI(void) {
   g.Mode = GPIO_MODE_OUTPUT_PP;
   g.Pull = GPIO_PULLUP;
   g.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(SD_CARD_PORT, &g);
+  HAL_GPIO_Init(SD_CARD_CS_PORT, &g);
   HAL_GPIO_WritePin(SD_CARD_PORT, SD_CS_PIN, GPIO_PIN_SET);
 
   h_sd_spi2.Instance = SPI2;

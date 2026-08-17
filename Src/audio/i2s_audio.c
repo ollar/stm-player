@@ -6,6 +6,7 @@
 #include "lvgl/stdlib/lv_string.h"
 #include "screens/player.h"
 #include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_i2s.h"
 #include "usart_init.h"
 #include <stdlib.h>
 #include <string.h>
@@ -66,11 +67,11 @@ static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
   }
 }
 
-HAL_StatusTypeDef sd_read_file() {
+HAL_StatusTypeDef sd_read_file(char *filename) {
 
   i2s_deinit();
 
-  fr = f_open(&fil, "11.WAV", FA_READ);
+  fr = f_open(&fil, filename, FA_READ);
 
   if (fr)
     return (int)fr;
@@ -116,6 +117,17 @@ HAL_StatusTypeDef sd_read_file() {
 
   /* Close the file */
   // f_close(&fil);
+}
+
+HAL_StatusTypeDef sd_close_file(void) {
+  HAL_I2S_DMAStop(&hi2s);
+  lv_memset(audio_data.audio_buffer, 0, audio_data.audio_half_frames * 4);
+
+  free(audio_buffer);
+  free(raw);
+
+  /* Close the file */
+  f_close(&fil);
 }
 
 void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s) {
