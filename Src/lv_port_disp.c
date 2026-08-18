@@ -21,6 +21,7 @@
  *********************/
 #define BYTE_PER_PIXEL                                                         \
   (LV_COLOR_FORMAT_GET_SIZE(LV_COLOR_FORMAT_I1)) /*will be 2 for RGB565 */
+#define PALETTE_SIZE 8
 
 /**********************
  *      TYPEDEFS
@@ -92,6 +93,58 @@ void disp_enable_update(void) { disp_flush_enabled = true; }
  */
 void disp_disable_update(void) { disp_flush_enabled = false; }
 
+static void convert_lvgl_to_oled_90cw(const uint8_t *src, uint8_t *dst,
+                                      uint32_t w, uint32_t h) {
+  const uint32_t src_stride = (w + 7) / 8;
+
+  memset(dst, 0, w * ((h + 7) / 8));
+
+  for (uint32_t y = 0; y < h; y++) {
+    for (uint32_t x = 0; x < w; x++) {
+      uint8_t src_byte = src[y * src_stride + x / 8];
+      uint8_t src_bit = 7 - (x & 7);
+      uint8_t pixel = (src_byte >> src_bit) & 1;
+
+      uint32_t oled_x = h - 1 - y;
+      uint32_t oled_y = x;
+
+      uint32_t page = oled_y / 8;
+      uint32_t bit = oled_y % 8;
+
+      if (pixel)
+        dst[page * w + oled_x] |= (1 << bit);
+      else
+        dst[page * w + oled_x] &= ~(1 << bit);
+    }
+  }
+}
+
+static void convert_lvgl_to_oled_90ccw(const uint8_t *src, uint8_t *dst,
+                                       uint32_t w, uint32_t h) {
+  const uint32_t src_stride = (w + 7) / 8;
+
+  memset(dst, 0, w * ((h + 7) / 8));
+
+  for (uint32_t y = 0; y < h; y++) {
+    for (uint32_t x = 0; x < w; x++) {
+      uint8_t src_byte = src[y * src_stride + x / 8];
+      uint8_t src_bit = 7 - (x & 7);
+      uint8_t pixel = (src_byte >> src_bit) & 1;
+
+      uint32_t oled_x = y;
+      uint32_t oled_y = w - 1 - x;
+
+      uint32_t page = oled_y / 8;
+      uint32_t bit = oled_y & 7;
+
+      if (pixel)
+        dst[page * w + oled_x] |= (1 << bit);
+      else
+        dst[page * w + oled_x] &= ~(1 << bit);
+    }
+  }
+}
+
 static void convert_lvgl_to_oled(const uint8_t *src, uint8_t *dst, uint32_t w,
                                  uint32_t h) {
   uint32_t src_stride = w / 8; // 16 байт на строку в LVGL I1
@@ -110,6 +163,16 @@ static void convert_lvgl_to_oled(const uint8_t *src, uint8_t *dst, uint32_t w,
   }
 }
 
+static void disp_flush(lv_display_t *disp, const lv_area_t *area,
+                       uint8_t *px_map) {
+  convert_lvgl_to_oled_90ccw(px_map + 8, // пропускаем палитру I1
+                             framebuffer, 128, 128);
+
+  OLED_Update();
+
+  lv_display_flush_ready(disp);
+}
+
 /*Flush the content of the internal buffer the specific area on the display.
  *`px_map` contains the rendered image as raw pixel map and it should be
  copied
@@ -117,12 +180,13 @@ static void convert_lvgl_to_oled(const uint8_t *src, uint8_t *dst, uint32_t w,
  do
  * this operation in the background but 'lv_display_flush_ready()' has to be
  * called when it's finished.*/
-static void disp_flush(lv_display_t *disp, const lv_area_t *area,
-                       uint8_t *px_map) {
-  convert_lvgl_to_oled(px_map + 8, framebuffer, OLED_WIDTH, OLED_HEIGHT);
-  OLED_Update();
-  lv_display_flush_ready(disp);
-}
+// static void disp_flush(lv_display_t *disp, const lv_area_t *area,
+//                        uint8_t *px_map) {
+//   convert_lvgl_to_oled(px_map + PALETTE_SIZE, framebuffer, OLED_WIDTH,
+//                        OLED_HEIGHT);
+//   OLED_Update();
+//   lv_display_flush_ready(disp);
+// }
 
 #else /*Enable this file at the top*/
 
