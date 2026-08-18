@@ -163,16 +163,6 @@ static void convert_lvgl_to_oled(const uint8_t *src, uint8_t *dst, uint32_t w,
   }
 }
 
-static void disp_flush(lv_display_t *disp, const lv_area_t *area,
-                       uint8_t *px_map) {
-  convert_lvgl_to_oled_90ccw(px_map + 8, // пропускаем палитру I1
-                             framebuffer, 128, 128);
-
-  OLED_Update();
-
-  lv_display_flush_ready(disp);
-}
-
 /*Flush the content of the internal buffer the specific area on the display.
  *`px_map` contains the rendered image as raw pixel map and it should be
  copied
@@ -180,13 +170,13 @@ static void disp_flush(lv_display_t *disp, const lv_area_t *area,
  do
  * this operation in the background but 'lv_display_flush_ready()' has to be
  * called when it's finished.*/
-// static void disp_flush(lv_display_t *disp, const lv_area_t *area,
-//                        uint8_t *px_map) {
-//   convert_lvgl_to_oled(px_map + PALETTE_SIZE, framebuffer, OLED_WIDTH,
-//                        OLED_HEIGHT);
-//   OLED_Update();
-//   lv_display_flush_ready(disp);
-// }
+static void disp_flush(lv_display_t *disp, const lv_area_t *area,
+                       uint8_t *px_map) {
+  convert_lvgl_to_oled_90ccw(px_map + PALETTE_SIZE, framebuffer, OLED_WIDTH,
+                             OLED_HEIGHT);
+  OLED_Update();
+  lv_display_flush_ready(disp);
+}
 
 #else /*Enable this file at the top*/
 

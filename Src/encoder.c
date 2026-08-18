@@ -50,9 +50,6 @@ void encoder_init(void) {
 
 int32_t encoder_get_delta(void) {
   uint16_t current = (uint16_t)__HAL_TIM_GET_COUNTER(&htim2);
-
-  /* Переполнение 16-битного счётчика обрабатывается автоматически
-   * благодаря приведению к int16_t                             */
   int16_t delta = (int16_t)(current - last_counter);
 
   remainder += delta;

@@ -64,6 +64,7 @@ HAL_StatusTypeDef get_sd_files_list(void) {
 
     if (lv_strncmp(finfo.fname, ".", 1) == 0 ||
         lv_strncmp(finfo.fname, "..", 2) == 0 ||
+        lv_strncmp(finfo.fname, "._", 2) == 0 || finfo.fsize < 10000 ||
         lv_strcmp(finfo.fname + len - 4, ".WAV") != 0) {
       continue;
     }
@@ -71,7 +72,9 @@ HAL_StatusTypeDef get_sd_files_list(void) {
     push_item(finfo.fname);
   }
 
-  // files_list.options_string[pos++] = '\0';   // TODO: check this
+  uint16_t options_string_len = lv_strlen(files_list.options_string);
+
+  files_list.options_string[options_string_len++] = '\0'; // TODO: check this
 
   f_closedir(&dir);
 

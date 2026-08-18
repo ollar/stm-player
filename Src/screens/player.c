@@ -95,8 +95,6 @@ static void player_onrelease_handler(void) {
 }
 
 static void player_enc_onchange(int32_t enc_delta) {
-  hprintf("player_enc_onchange\r\n");
-
   if (is_button_pressed) {
     is_button_pressed_and_encoder_changed = 1;
     uint8_t files_list_current = files_list.current;
