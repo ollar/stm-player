@@ -39,7 +39,8 @@ static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
   if (f_read(fp, audio_data.raw, frames * bytes_per_frame, &br) != FR_OK)
     br = 0;
 
-  if (br < frames) {
+  if (br < frames * bytes_per_frame) {
+    play_next_track();
   }
 
   uint8_t *current_byte_pointer = audio_data.raw;
@@ -79,31 +80,29 @@ HAL_StatusTypeDef sd_read_file(char *filename) {
   if (fr)
     return (int)fr;
 
-  Wav_Header_t *header = {0};
-  header = get_file_header(&fil);
+  Wav_Header_t header = {0};
+  get_file_header(&fil, &header);
 
-  uint32_t audio_half_frames = get_i2s_buffer_size(header);
+  uint32_t audio_half_frames = get_i2s_buffer_size(&header);
 
   audio_buffer =
       realloc(audio_buffer, audio_half_frames * 2 * 4 * sizeof(uint16_t));
-  raw = realloc(raw, audio_half_frames * header->block_align * sizeof(uint8_t));
-
-  hprintf_formatted("audio_half_frames %d\r\n", audio_half_frames);
+  raw = realloc(raw, audio_half_frames * header.block_align * sizeof(uint8_t));
 
   audio_data = (Audio_Data_t){
-      .audiofreq = get_i2s_audiofreq(header),
+      .audiofreq = get_i2s_audiofreq(&header),
       .audio_half_frames = audio_half_frames,
-      .bytes_per_frame = header->block_align,
-      .dataformat = get_i2s_dataformat(header),
-      .number_of_channels = header->number_of_channels,
-      .chunk_size = header->chunk_size,
-      .byte_rate = header->byte_rate,
+      .bytes_per_frame = header.block_align,
+      .dataformat = get_i2s_dataformat(&header),
+      .number_of_channels = header.number_of_channels,
+      .chunk_size = header.chunk_size,
+      .byte_rate = header.byte_rate,
       .bytes_read = 0,
       .audio_buffer = audio_buffer,
       .raw = raw,
   };
 
-  i2s_init(header);
+  i2s_init(&header);
 
   uint16_t data_offset = wav_find_data_offset(&fil);
 

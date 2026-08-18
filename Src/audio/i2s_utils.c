@@ -1,5 +1,6 @@
 #include "ff.h"
 #include "i2s_common.h"
+#include "lvgl/stdlib/lv_string.h"
 #include "stm32f4xx_hal.h"
 #include "usart_init.h"
 #include <stdint.h>
@@ -60,6 +61,7 @@ int32_t pcm24_to_i32(const uint8_t *p, uint8_t dataformat) {
   }
 }
 
+// TODO: check if offset could be 40
 uint32_t wav_find_data_offset(FIL *fp) {
   char chunkId[4];
   uint32_t chunkSize;
@@ -74,23 +76,23 @@ uint32_t wav_find_data_offset(FIL *fp) {
     if (f_read(fp, &chunkSize, 4, &br) != FR_OK || br != 4)
       return 0;
 
-    if (memcmp(chunkId, "data", 4) == 0) {
-      return offset + 8; // move to actual data
+    if (lv_memcmp(chunkId, "data", 4) == 0) {
+      return offset + 8;
     }
 
     offset += 8 + chunkSize;
     if (offset & 1)
-      offset++; // align to even
+      offset++;
   }
 }
 
-uint8_t header_buffer[256];
-Wav_Header_t *get_file_header(FIL *fil) {
+void get_file_header(FIL *fil, Wav_Header_t *header) {
   UINT br;
+  uint8_t header_buffer[256];
 
   f_read(fil, header_buffer, 256, &br);
 
-  Wav_Header_t *header = (Wav_Header_t *)&header_buffer;
+  lv_memcpy(header, header_buffer, sizeof(*header));
 
   hprintf_formatted("header chunk_id: %d\r\n", header->chunk_id);
   hprintf_formatted("header chunk_size: %d\r\n", header->chunk_size);
@@ -106,6 +108,4 @@ Wav_Header_t *get_file_header(FIL *fil) {
   hprintf_formatted("header bits_per_sample: %d\r\n", header->bits_per_sample);
   hprintf_formatted("header subchunk2_id: %.4s\r\n", header->subchunk2_id);
   hprintf_formatted("header subchunk2_size: %d\r\n", header->subchunk2_size);
-
-  return header;
 }

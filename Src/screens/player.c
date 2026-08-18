@@ -112,6 +112,15 @@ static void player_enc_onchange(int32_t enc_delta) {
   }
 }
 
+void play_next_track(void) {
+  uint8_t files_list_current = files_list.current;
+  files_list_current += 1;
+  files_list.current = files_list_current % files_list.size;
+
+  sd_close_file();
+  sd_read_file(get_current_track_name());
+}
+
 lv_obj_t *create_player_screen(void) {
   set_rerender_function(rerender_player);
   Button_t *button = &buttons_set.buttons[0];
