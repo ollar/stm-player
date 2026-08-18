@@ -69,6 +69,10 @@ HAL_StatusTypeDef get_sd_files_list(void) {
       continue;
     }
 
+    // char *fname = finfo.fname;
+    // fname[len - 4] = '\0';
+
+    // push_item(finfo.fname);
     push_item(finfo.fname);
   }
 
