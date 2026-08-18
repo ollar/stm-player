@@ -6,3 +6,4 @@ typedef struct {
 } Player_state_t;
 
 lv_obj_t *create_player_screen(void);
+void play_next_track(void);
