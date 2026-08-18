@@ -40,6 +40,7 @@ static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
     br = 0;
 
   if (br < frames * bytes_per_frame) {
+    sd_close_file();
     play_next_track();
   }
 

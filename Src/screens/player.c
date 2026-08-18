@@ -117,7 +117,6 @@ void play_next_track(void) {
   files_list_current += 1;
   files_list.current = files_list_current % files_list.size;
 
-  sd_close_file();
   sd_read_file(get_current_track_name());
 }
 

@@ -30,7 +30,8 @@ void encoder_init(void) {
 
   TIM_Encoder_InitTypeDef enc = {0};
   enc.EncoderMode = TIM_ENCODERMODE_TI12; // x4 максимальное разрешение
-  enc.IC1Polarity = TIM_ICPOLARITY_RISING;
+  // enc.IC1Polarity = TIM_ICPOLARITY_RISING;
+  enc.IC1Polarity = TIM_ICPOLARITY_FALLING;
   enc.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   enc.IC1Prescaler = TIM_ICPSC_DIV1;
   enc.IC1Filter = 6; // аппаратный фильтр дребезга
