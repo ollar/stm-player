@@ -6,6 +6,7 @@
 #include "i2s_common.h"
 #include "lvgl.h"
 #include "lvgl/core/lv_area.h"
+#include "lvgl/core/lv_obj_pos.h"
 #include "lvgl/draw/lv_color.h"
 #include "lvgl/widgets/lv_label.h"
 #include "oled_sh1107.h"
@@ -16,12 +17,16 @@
 extern Audio_Data_t audio_data;
 extern Buttons_Set_t buttons_set;
 extern Files_list_t files_list;
+extern uint32_t audio_peak_left;
+extern uint32_t audio_peak_right;
 
 static lv_obj_t *label = NULL;
 static lv_obj_t *track_duration = NULL;
 static const float volumes_table[7] = {0.0f,  0.01f, 0.06f, 0.25f,
                                        0.56f, 0.81f, 1.0f};
 static lv_obj_t *volume_bars[7];
+lv_obj_t *left_bar = {0};
+lv_obj_t *right_bar = {0};
 static uint8_t current_volume_ind = 5;
 static uint8_t is_button_pressed = 0;
 static uint8_t is_button_pressed_and_encoder_changed = 0;
@@ -55,6 +60,12 @@ static void rerender_player() {
       lv_obj_set_style_bg_color(rect, lv_color_black(), 0);
     }
   }
+
+  uint8_t left_level = (uint64_t)audio_peak_left * 100 / 8388607 / 5;
+  uint8_t right_level = (uint64_t)audio_peak_right * 100 / 8388607 / 5;
+
+  lv_obj_set_size(left_bar, 20, left_level);
+  lv_obj_set_size(right_bar, 20, right_level);
 }
 
 static void player_onclick_handler(uint32_t press_delta) {
@@ -168,6 +179,26 @@ lv_obj_t *create_player_screen(void) {
     lv_obj_set_style_bg_color(rect, lv_color_white(), 0);
     lv_obj_set_style_radius(rect, 0, 0);
   }
+
+  // ===================================================
+
+  left_bar = lv_obj_create(player_screen);
+
+  lv_obj_set_size(left_bar, 20, 1);
+  lv_obj_align(left_bar, LV_ALIGN_BOTTOM_MID, -1 * 10 - 2, 0);
+
+  lv_obj_set_style_border_width(left_bar, 0, 0);
+  lv_obj_set_style_bg_color(left_bar, lv_color_white(), 0);
+  lv_obj_set_style_radius(left_bar, 0, 0);
+
+  right_bar = lv_obj_create(player_screen);
+
+  lv_obj_set_size(right_bar, 20, 1);
+  lv_obj_align(right_bar, LV_ALIGN_BOTTOM_MID, 10 + 2, 0);
+
+  lv_obj_set_style_border_width(right_bar, 0, 0);
+  lv_obj_set_style_bg_color(right_bar, lv_color_white(), 0);
+  lv_obj_set_style_radius(right_bar, 0, 0);
 
   return player_screen;
 }

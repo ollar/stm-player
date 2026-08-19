@@ -20,6 +20,9 @@ UINT br;
 static uint16_t *audio_buffer;
 static uint8_t *raw;
 
+volatile uint32_t audio_peak_left = 0;
+volatile uint32_t audio_peak_right = 0;
+
 extern Player_state_t player_state;
 
 static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
@@ -49,17 +52,29 @@ static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
 
   audio_data.bytes_read += br;
 
+  uint32_t peak_left = 0;
+  uint32_t peak_right = 0;
+
   for (uint16_t i = 0; i < frames; i++) {
     int32_t left = 0, right = 0;
 
     if (i < samples_read) {
-      int32_t raw_left = pcm24_to_i32(current_byte_pointer, dataformat);
+      int32_t raw_left = pcm_to_i32(current_byte_pointer, dataformat);
       current_byte_pointer += bytes_per_channel;
-      int32_t raw_right = pcm24_to_i32(current_byte_pointer, dataformat);
+      int32_t raw_right = pcm_to_i32(current_byte_pointer, dataformat);
       current_byte_pointer += bytes_per_channel;
 
       left = (int32_t)(raw_left * player_state.volume);
       right = (int32_t)(raw_right * player_state.volume);
+
+      uint32_t abs_left = (raw_left < 0) ? -raw_left : raw_left;
+      uint32_t abs_right = (raw_right < 0) ? -raw_right : raw_right;
+
+      if (abs_left > peak_left)
+        peak_left = abs_left;
+
+      if (abs_right > peak_right)
+        peak_right = abs_right;
     }
 
     uint32_t ul = ((uint32_t)left) << 8;
@@ -70,6 +85,9 @@ static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
     *buf++ = ur >> 16;
     *buf++ = ur & 0xFFFF;
   }
+
+  audio_peak_left = peak_left;
+  audio_peak_right = peak_right;
 }
 
 HAL_StatusTypeDef sd_read_file(char *filename) {

@@ -41,7 +41,7 @@ uint32_t get_i2s_buffer_size(Wav_Header_t *header) {
   }
 }
 
-int32_t pcm24_to_i32(const uint8_t *p, uint8_t dataformat) {
+int32_t pcm_to_i32(const uint8_t *p, uint8_t dataformat) {
   switch (dataformat) {
   case I2S_DATAFORMAT_32B: {
     int32_t s = ((int32_t)p[3] << 24) | ((int32_t)p[2] << 16) |
