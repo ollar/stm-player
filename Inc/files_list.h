@@ -3,6 +3,7 @@
 #include "stm32f4xx_hal.h"
 #include <stdint.h>
 
+// TODO: rewrite to malloc?
 typedef struct {
   char *items[50];
   uint8_t size;
