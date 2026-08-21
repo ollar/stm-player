@@ -35,7 +35,8 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-extern uint64_t system_tick;
+extern uint32_t system_tick;
+extern uint32_t screen_sleep_timer_tick, sleep_timer_tick;
 extern uint16_t Timer1, Timer2;
 extern I2S_HandleTypeDef hi2s;
 extern DMA_HandleTypeDef hdma_spi3_tx;
@@ -131,6 +132,8 @@ void SysTick_Handler(void) {
   if (Timer2 > 0)
     Timer2--;
   system_tick++;
+  sleep_timer_tick++;
+  screen_sleep_timer_tick++;
 }
 
 void DMA1_Stream7_IRQHandler(void) { HAL_DMA_IRQHandler(&hdma_spi3_tx); }

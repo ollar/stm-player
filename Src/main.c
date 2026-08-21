@@ -16,6 +16,8 @@
 #include "encoder.h"
 
 volatile uint32_t system_tick = 0;
+volatile uint32_t screen_sleep_timer_tick = 0;
+volatile uint32_t sleep_timer_tick = 0;
 
 static void SystemClock_Config(void);
 
