@@ -9,7 +9,8 @@ typedef struct {
   uint8_t current;
 
   // char *options_string;
-  char options_string[512];
+  // char options_string[512];
+  char options_string[255 * 50 + 50 + 1]; // ??
 } Files_list_t;
 
 HAL_StatusTypeDef get_sd_files_list(void);

@@ -10,6 +10,7 @@ FATFS fs;
 static Files_list_t *create_files_list(void) {
   files_list.size = 0;
   files_list.current = 0;
+  lv_memset(files_list.items, 0, sizeof(files_list.items));
 };
 
 static HAL_StatusTypeDef push_item(char *item) {
@@ -65,14 +66,10 @@ HAL_StatusTypeDef get_sd_files_list(void) {
     if (lv_strncmp(finfo.fname, ".", 1) == 0 ||
         lv_strncmp(finfo.fname, "..", 2) == 0 ||
         lv_strncmp(finfo.fname, "._", 2) == 0 || finfo.fsize < 10000 ||
-        lv_strcmp(finfo.fname + len - 4, ".WAV") != 0) {
+        lv_strcmp(finfo.fname + len - 4, ".wav") != 0) {
       continue;
     }
 
-    // char *fname = finfo.fname;
-    // fname[len - 4] = '\0';
-
-    // push_item(finfo.fname);
     push_item(finfo.fname);
   }
 
