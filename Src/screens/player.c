@@ -13,12 +13,9 @@
 #include "screens/router.h"
 #include "usart_init.h"
 
-// get_current_track_name
 extern Audio_Data_t audio_data;
 extern Buttons_Set_t buttons_set;
 extern Files_list_t files_list;
-extern uint32_t audio_peak_left;
-extern uint32_t audio_peak_right;
 
 static lv_obj_t *label = NULL;
 static lv_obj_t *track_duration = NULL;
@@ -35,6 +32,10 @@ Player_state_t player_state = {
     .is_playing = 1,
     .volume = 0.8f,
 };
+
+static uint8_t get_channel_level(uint32_t audio_peak) {
+  return (uint64_t)audio_peak * 100 / SOUND_VOLUME_NORMALIZER;
+}
 
 static void rerender_player() {
   if (!track_duration) {
@@ -61,11 +62,21 @@ static void rerender_player() {
     }
   }
 
-  uint8_t left_level = (uint64_t)audio_peak_left * 100 / 8388607 / 5;
-  uint8_t right_level = (uint64_t)audio_peak_right * 100 / 8388607 / 5;
+  uint8_t left_level = get_channel_level(audio_data.audio_peak_left);
+  uint8_t right_level = get_channel_level(audio_data.audio_peak_right);
 
-  lv_obj_set_size(left_bar, 20, left_level);
-  lv_obj_set_size(right_bar, 20, right_level);
+  lv_memset(buffer, 0, sizeof(buffer));
+
+  lv_snprintf(buffer, sizeof(buffer), "%04X\n%04X", audio_data.audio_buffer[0],
+              audio_data.audio_buffer[4]);
+  lv_label_set_text(left_bar, buffer);
+
+  lv_snprintf(buffer, sizeof(buffer), "%04X\n%04X", audio_data.audio_buffer[2],
+              audio_data.audio_buffer[6]);
+  lv_label_set_text(right_bar, buffer);
+
+  lv_obj_set_size(left_bar, lv_pct(50), lv_pct(left_level));
+  lv_obj_set_size(right_bar, lv_pct(50), lv_pct(right_level));
 }
 
 static void player_onclick_handler(uint32_t press_delta) {
@@ -182,19 +193,24 @@ lv_obj_t *create_player_screen(void) {
 
   // ===================================================
 
-  left_bar = lv_obj_create(player_screen);
+  lv_obj_t *bars_wrapper = lv_obj_create(player_screen);
+  lv_obj_set_size(bars_wrapper, OLED_WIDTH, OLED_HEIGHT / 3);
+  lv_obj_align(bars_wrapper, LV_ALIGN_BOTTOM_MID, 0, 0);
 
-  lv_obj_set_size(left_bar, 20, 1);
-  lv_obj_align(left_bar, LV_ALIGN_BOTTOM_MID, -1 * 10 - 2, 0);
+  left_bar = lv_label_create(bars_wrapper);
+
+  lv_obj_set_size(left_bar, lv_pct(50), lv_pct(100));
+  lv_obj_align(left_bar, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+  lv_obj_set_style_text_align(left_bar, LV_TEXT_ALIGN_RIGHT, 0);
 
   lv_obj_set_style_border_width(left_bar, 0, 0);
   lv_obj_set_style_bg_color(left_bar, lv_color_white(), 0);
   lv_obj_set_style_radius(left_bar, 0, 0);
 
-  right_bar = lv_obj_create(player_screen);
+  right_bar = lv_label_create(bars_wrapper);
 
-  lv_obj_set_size(right_bar, 20, 1);
-  lv_obj_align(right_bar, LV_ALIGN_BOTTOM_MID, 10 + 2, 0);
+  lv_obj_set_size(right_bar, lv_pct(50), lv_pct(100));
+  lv_obj_align(right_bar, LV_ALIGN_BOTTOM_LEFT, lv_pct(50), 0);
 
   lv_obj_set_style_border_width(right_bar, 0, 0);
   lv_obj_set_style_bg_color(right_bar, lv_color_white(), 0);

@@ -1,4 +1,8 @@
+#pragma once
+
 #include "lvgl.h"
+
+#define SOUND_VOLUME_NORMALIZER 8388607
 
 typedef struct {
   uint8_t is_playing;

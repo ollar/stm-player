@@ -20,9 +20,6 @@ UINT br;
 static uint16_t *audio_buffer;
 static uint8_t *raw;
 
-volatile uint32_t audio_peak_left = 0;
-volatile uint32_t audio_peak_right = 0;
-
 extern Player_state_t player_state;
 
 static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
@@ -86,8 +83,8 @@ static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
     *buf++ = ur & 0xFFFF;
   }
 
-  audio_peak_left = peak_left;
-  audio_peak_right = peak_right;
+  audio_data.audio_peak_left = peak_left;
+  audio_data.audio_peak_right = peak_right;
 }
 
 HAL_StatusTypeDef sd_read_file(char *filename) {
@@ -104,6 +101,7 @@ HAL_StatusTypeDef sd_read_file(char *filename) {
 
   uint32_t audio_half_frames = get_i2s_buffer_size(&header);
 
+  // TODO: recheck this. rewrite this!
   audio_buffer =
       realloc(audio_buffer, audio_half_frames * 2 * 4 * sizeof(uint16_t));
   raw = realloc(raw, audio_half_frames * header.block_align * sizeof(uint8_t));
