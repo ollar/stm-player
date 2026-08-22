@@ -80,10 +80,7 @@ static void rerender_player() {
 }
 
 static void player_onclick_handler(uint32_t press_delta) {
-  hprintf("player_onclick_handler\r\n");
-
   if (is_button_pressed_and_encoder_changed) {
-    hprintf("is_button_pressed_and_encoder_changed\r\n");
     is_button_pressed_and_encoder_changed = 0;
     return;
   }
@@ -100,14 +97,9 @@ static void player_onclick_handler(uint32_t press_delta) {
   }
 }
 
-static void player_onpress_handler(void) {
-  hprintf("player_onpress_handler\r\n");
-
-  is_button_pressed = 1;
-}
+static void player_onpress_handler(void) { is_button_pressed = 1; }
 
 static void player_onrelease_handler(void) {
-  hprintf("player_onrelease_handler\r\n");
   if (is_button_pressed_and_encoder_changed) {
     sd_close_file();
     sd_read_file(get_current_track_name());
