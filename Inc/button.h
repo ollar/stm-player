@@ -20,7 +20,7 @@ typedef struct {
 static void button_click_handler_dummy(uint32_t n) { ; };
 static void button_press_handler_dummy(void) { ; };
 
-Button_t *button_init(GPIO_TypeDef *, uint16_t);
+Button_t *button_init(GPIO_TypeDef *, uint16_t, uint32_t);
 void buttons_listen_change(void);
 void set_button_onclick_handler(Button_t *,
                                 void (*new_onclick_handler)(uint32_t));

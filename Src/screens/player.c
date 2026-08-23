@@ -29,7 +29,7 @@ static uint8_t is_button_pressed = 0;
 static uint8_t is_button_pressed_and_encoder_changed = 0;
 
 Player_state_t player_state = {
-    .is_playing = 1,
+    .is_playing = 0,
     .volume = 0.8f,
 };
 
@@ -94,6 +94,7 @@ static void player_onclick_handler(uint32_t press_delta) {
   if (press_delta > 1000) {
     sd_close_file();
     transition_to_screen(TRACKLIST_SCREEN);
+    player_state.is_playing = 0;
   }
 }
 

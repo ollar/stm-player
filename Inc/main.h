@@ -31,4 +31,5 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 
+void SystemClock_Config(void);
 #endif /* __MAIN_H */

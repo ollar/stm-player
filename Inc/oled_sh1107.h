@@ -27,3 +27,5 @@ void OLED_Update(void);
 void OLED_DrawPixel_Buffered(uint8_t x, uint8_t y, uint8_t color);
 void OLED_SendDataBuffer(uint8_t *buffer, uint16_t size);
 void OLED_Clear(void);
+void OLED_Sleep(void);
+void OLED_Wakeup(void);

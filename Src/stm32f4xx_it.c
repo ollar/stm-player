@@ -136,6 +136,9 @@ void SysTick_Handler(void) {
   screen_sleep_timer_tick++;
 }
 
+void EXTI0_IRQHandler(void) { HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0); }
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {}
+
 void DMA1_Stream7_IRQHandler(void) { HAL_DMA_IRQHandler(&hdma_spi3_tx); }
 
 void SPI3_IRQHandler(void) { HAL_I2S_IRQHandler(&hi2s); }

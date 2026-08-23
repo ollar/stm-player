@@ -1,13 +1,14 @@
 #include "button.h"
+#include "sleep_mode.h"
 #include "stm32f4xx_hal.h"
 #include "usart_init.h"
 
 Buttons_Set_t buttons_set = {0};
 
-Button_t *button_init(GPIO_TypeDef *port, uint16_t pin) {
+Button_t *button_init(GPIO_TypeDef *port, uint16_t pin, uint32_t mode) {
   GPIO_InitTypeDef gpio = {0};
   gpio.Pin = pin;
-  gpio.Mode = GPIO_MODE_INPUT;
+  gpio.Mode = mode;
   gpio.Pull = GPIO_PULLUP;
   gpio.Speed = GPIO_SPEED_FREQ_LOW;
 
@@ -49,6 +50,7 @@ void buttons_listen_change(void) {
     }
 
     if (is_high_to_low(button->state, button_new_state)) {
+      clear_sleep_timers();
       uint32_t button_press_end = HAL_GetTick();
       uint32_t pressed_time_delta = button_press_end - button->press_start;
 

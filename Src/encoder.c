@@ -1,4 +1,5 @@
 #include "encoder.h"
+#include "sleep_mode.h"
 #include "stm32f4xx_hal.h"
 #include <stdint.h>
 
@@ -86,5 +87,6 @@ void encoder_listen_change(void) {
     return;
   }
 
+  clear_sleep_timers();
   enc_change_handler(enc_delta);
 }

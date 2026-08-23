@@ -15,11 +15,11 @@
 #include "button.h"
 #include "encoder.h"
 
+#include "sleep_mode.h"
+
 volatile uint32_t system_tick = 0;
 volatile uint32_t screen_sleep_timer_tick = 0;
 volatile uint32_t sleep_timer_tick = 0;
-
-static void SystemClock_Config(void);
 
 static void my_rerender_timer_cb(lv_timer_t *timer) {
   if (rerender_func != NULL) {
@@ -66,7 +66,7 @@ int main(void) {
    */
 
   encoder_init();
-  button_init(BUTTON_PORT, BUTTON_PIN);
+  button_init(BUTTON_PORT, BUTTON_PIN, GPIO_MODE_IT_FALLING);
 
   /**
    * Main program code
@@ -87,6 +87,8 @@ int main(void) {
       lv_timer_handler();
       buttons_listen_change();
       encoder_listen_change();
+      listen_for_sleep_mode();
+      listen_for_screensave();
     }
 
     if (system_tick - last_led_toggle >= 200) {
@@ -100,7 +102,7 @@ int main(void) {
   return 0;
 }
 
-static void SystemClock_Config(void) {
+void SystemClock_Config(void) {
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
   hprintf("SystemClock_Config\r\n");

@@ -152,3 +152,7 @@ void OLED_DrawPixel_Buffered(uint8_t x, uint8_t y, uint8_t color) {
     framebuffer[page * 128 + x] &= ~(1 << bit);
   }
 }
+
+void OLED_Sleep() { OLED_SendCommand(0xAE); }
+
+void OLED_Wakeup() { OLED_SendCommand(0xAF); }

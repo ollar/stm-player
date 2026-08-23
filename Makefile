@@ -42,19 +42,6 @@ LDFLAGS += -specs=nano.specs -specs=nosys.specs
 # Source files
 SRCS = Src/main.c 
 SRCS += CMSIS/Device/Source/system_stm32f4xx.c 
-SRCS += HAL/Src/stm32f4xx_hal.c 
-SRCS += HAL/Src/stm32f4xx_hal_gpio.c 
-SRCS += HAL/Src/stm32f4xx_hal_rcc.c 
-SRCS += HAL/Src/stm32f4xx_hal_rcc_ex.c 
-SRCS += HAL/Src/stm32f4xx_hal_spi.c 
-SRCS += HAL/Src/stm32f4xx_hal_usart.c 
-SRCS += HAL/Src/stm32f4xx_hal_cortex.c 
-SRCS += HAL/Src/stm32f4xx_hal_dma.c 
-SRCS += HAL/Src/stm32f4xx_hal_dma_ex.c
-SRCS += HAL/Src/stm32f4xx_hal_tim.c
-SRCS += HAL/Src/stm32f4xx_hal_tim_ex.c
-SRCS += HAL/Src/stm32f4xx_hal_i2s.c
-SRCS += HAL/Src/stm32f4xx_hal_i2s_ex.c
 
 SRCS += Src/stm32f4xx_it.c 
 SRCS += Src/syscalls.c 
@@ -81,12 +68,15 @@ SRCS += Src/audio/i2s_utils.c
 SRCS += Src/sd_card/sd_spi.c 
 SRCS += Src/sd_card/sd_functions.c
 
+SRCS += Src/sleep_mode.c
+
+HAL_C_SOURCES := $(shell find HAL/Src -name '*.c')
 LVGL_C_SOURCES := $(shell find Middlewares/LVGL/src -name '*.c')
 FatFs_C_SOURCES := $(shell find Middlewares/FatFs -name '*.c')
 
 ASRCS = Startup/startup.s
 
-OBJS = $(ASRCS:.s=.o) $(SRCS:.c=.o) $(LVGL_C_SOURCES:.c=.o) $(FatFs_C_SOURCES:.c=.o)
+OBJS = $(ASRCS:.s=.o) $(SRCS:.c=.o) $(HAL_C_SOURCES:.c=.o) $(LVGL_C_SOURCES:.c=.o) $(FatFs_C_SOURCES:.c=.o)
 
 # Executable name
 TARGET = blink.elf
