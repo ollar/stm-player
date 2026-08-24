@@ -20,7 +20,11 @@ void set_rerender_function(void (*new_rerender_func)(void)) {
 
 static void clear_rerender_func(void) { rerender_func = rerender_dummy_func; }
 
-void transition_to_screen(SCREEN_NAMES_ENUM screen_name) {
+lv_obj_t *fallback_to_nocard_screen() {
+  return transition_to_screen(NO_SD_CARD_SCREEN);
+}
+
+lv_obj_t *transition_to_screen(SCREEN_NAMES_ENUM screen_name) {
   if (prev_screen) {
     lv_obj_del(prev_screen);
     prev_screen = NULL;
@@ -51,4 +55,6 @@ void transition_to_screen(SCREEN_NAMES_ENUM screen_name) {
   prev_screen = screen;
 
   lv_screen_load(screen);
+
+  return screen;
 }

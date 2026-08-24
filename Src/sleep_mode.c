@@ -88,6 +88,7 @@ static void wakeup_from_sleep_mode() {
   SystemClock_Config();
 
   restore_original_button_click_handler();
+  is_screensaving = 0;
 
   OLED_Wakeup();
 

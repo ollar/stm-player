@@ -1,6 +1,6 @@
 #include "files_list.h"
 #include "ff.h"
-#include "lvgl/stdlib/lv_string.h"
+#include "lvgl.h"
 #include "stm32f4xx_hal.h"
 #include <stdint.h>
 
@@ -11,6 +11,7 @@ static Files_list_t *create_files_list(void) {
   files_list.size = 0;
   files_list.current = 0;
   lv_memset(files_list.items, 0, sizeof(files_list.items));
+  lv_memset(files_list.options_string, 0, sizeof(files_list.options_string));
 };
 
 static HAL_StatusTypeDef push_item(char *item) {
@@ -40,6 +41,7 @@ HAL_StatusTypeDef get_sd_files_list(void) {
   DIR dir;
   FILINFO finfo;
 
+  f_mount(NULL, "", 0);
   res = f_mount(&fs, "", 1);
 
   if (res != FR_OK) {

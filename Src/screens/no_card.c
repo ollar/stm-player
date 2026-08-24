@@ -1,8 +1,17 @@
+#include "button.h"
 #include "lvgl.h"
-#include "lvgl/widgets/lv_label.h"
 #include "oled_sh1107.h"
 
+extern Buttons_Set_t buttons_set;
+
+static void no_card_onclick_handler(uint32_t press_delta) {
+  NVIC_SystemReset();
+}
+
 lv_obj_t *create_no_card_screen(void) {
+  Button_t *button = &buttons_set.buttons[0];
+  set_button_onclick_handler(button, no_card_onclick_handler);
+
   lv_obj_t *no_card_screen = lv_obj_create(NULL);
   lv_obj_set_style_pad_all(no_card_screen, 0, 0);
 

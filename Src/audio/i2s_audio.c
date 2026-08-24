@@ -3,7 +3,7 @@
 #include "i2s_common.h"
 #include "i2s_init.h"
 #include "i2s_utils.h"
-#include "lvgl/stdlib/lv_string.h"
+#include "lvgl.h"
 #include "screens/player.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_i2s.h"
@@ -36,8 +36,9 @@ static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
     return;
   }
 
-  if (f_read(fp, audio_data.raw, frames * bytes_per_frame, &br) != FR_OK)
+  if (f_read(fp, audio_data.raw, frames * bytes_per_frame, &br) != FR_OK) {
     br = 0;
+  }
 
   if (br < frames * bytes_per_frame) {
     sd_close_file();

@@ -17,6 +17,7 @@ Button_t *button_init(GPIO_TypeDef *port, uint16_t pin, uint32_t mode) {
   Button_t button = {0};
   button.pin = pin;
   button.port = port;
+  button.state = GPIO_PIN_SET;
   button.onclick_handler = &button_click_handler_dummy;
   button.onpress_handler = &button_press_handler_dummy;
   button.onrelease_handler = &button_press_handler_dummy;

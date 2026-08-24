@@ -1,6 +1,6 @@
 #include "ff.h"
 #include "i2s_common.h"
-#include "lvgl/stdlib/lv_string.h"
+#include "lvgl.h"
 #include "stm32f4xx_hal.h"
 #include "usart_init.h"
 #include <stdint.h>

@@ -5,10 +5,6 @@
 #include "i2s_audio.h"
 #include "i2s_common.h"
 #include "lvgl.h"
-#include "lvgl/core/lv_area.h"
-#include "lvgl/core/lv_obj_pos.h"
-#include "lvgl/draw/lv_color.h"
-#include "lvgl/widgets/lv_label.h"
 #include "oled_sh1107.h"
 #include "screens/router.h"
 #include "usart_init.h"
@@ -132,7 +128,13 @@ void play_next_track(void) {
   files_list_current += 1;
   files_list.current = files_list_current % files_list.size;
 
-  sd_read_file(get_current_track_name());
+  player_state.is_playing = 0;
+
+  HAL_StatusTypeDef res = sd_read_file(get_current_track_name());
+
+  if (res != HAL_OK) {
+    fallback_to_nocard_screen();
+  }
 }
 
 lv_obj_t *create_player_screen(void) {
@@ -150,7 +152,11 @@ lv_obj_t *create_player_screen(void) {
 
   char *current_track_name = get_current_track_name();
 
-  sd_read_file(current_track_name);
+  HAL_StatusTypeDef res = sd_read_file(current_track_name);
+
+  if (res != HAL_OK) {
+    return fallback_to_nocard_screen();
+  }
 
   // ===================================================
   label = lv_label_create(player_screen);
