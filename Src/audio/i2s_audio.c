@@ -6,8 +6,8 @@
 #include "lvgl.h"
 #include "screens/player.h"
 #include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_i2s.h"
 #include "usart_init.h"
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -101,11 +101,13 @@ HAL_StatusTypeDef sd_read_file(char *filename) {
   get_file_header(&fil, &header);
 
   uint32_t audio_half_frames = get_i2s_buffer_size(&header);
+  uint32_t raw_size = audio_half_frames * header.block_align;
 
-  // TODO: recheck this. rewrite this!
-  audio_buffer =
-      realloc(audio_buffer, audio_half_frames * 2 * 4 * sizeof(uint16_t));
-  raw = realloc(raw, audio_half_frames * header.block_align * sizeof(uint8_t));
+  audio_buffer = realloc(audio_buffer, 4 * raw_size);
+  lv_memset(audio_buffer, 0, sizeof(audio_buffer));
+
+  raw = realloc(raw, raw_size);
+  lv_memset(raw, 0, sizeof(raw));
 
   audio_data = (Audio_Data_t){
       .audiofreq = get_i2s_audiofreq(&header),

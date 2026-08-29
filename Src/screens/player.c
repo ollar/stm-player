@@ -128,8 +128,6 @@ void play_next_track(void) {
   files_list_current += 1;
   files_list.current = files_list_current % files_list.size;
 
-  player_state.is_playing = 0;
-
   HAL_StatusTypeDef res = sd_read_file(get_current_track_name());
 
   if (res != HAL_OK) {
