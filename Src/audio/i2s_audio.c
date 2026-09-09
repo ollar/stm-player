@@ -3,7 +3,6 @@
 #include "i2s_common.h"
 #include "i2s_init.h"
 #include "i2s_utils.h"
-#include "lvgl.h"
 #include "screens/player.h"
 #include "stm32f4xx_hal.h"
 #include "usart_init.h"
@@ -30,9 +29,8 @@ static void fill_audio(FIL *fp, uint16_t *buf, uint16_t frames) {
   uint8_t dataformat = audio_data.dataformat;
 
   if (!player_state.is_playing) {
-    lv_memset(buf, 0,
-              frames * audio_data.number_of_channels *
-                  audio_data.bytes_per_frame);
+    memset(buf, 0,
+           frames * audio_data.number_of_channels * audio_data.bytes_per_frame);
     return;
   }
 
@@ -104,10 +102,10 @@ HAL_StatusTypeDef sd_read_file(char *filename) {
   uint32_t raw_size = audio_half_frames * header.block_align;
 
   audio_buffer = realloc(audio_buffer, 4 * raw_size);
-  lv_memset(audio_buffer, 0, sizeof(audio_buffer));
+  memset(audio_buffer, 0, 4 * raw_size);
 
   raw = realloc(raw, raw_size);
-  lv_memset(raw, 0, sizeof(raw));
+  memset(raw, 0, raw_size);
 
   audio_data = (Audio_Data_t){
       .audiofreq = get_i2s_audiofreq(&header),
@@ -137,9 +135,9 @@ HAL_StatusTypeDef sd_close_file(void) {
   HAL_StatusTypeDef status = HAL_I2S_DMAStop(&hi2s);
 
   if (audio_data.audio_buffer != NULL) {
-    lv_memset(audio_data.audio_buffer, 0,
-              audio_data.audio_half_frames * audio_data.number_of_channels *
-                  audio_data.bytes_per_frame);
+    memset(audio_data.audio_buffer, 0,
+           audio_data.audio_half_frames * audio_data.number_of_channels *
+               audio_data.bytes_per_frame);
   }
 
   f_close(&fil);

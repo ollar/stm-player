@@ -1,6 +1,5 @@
 #include "ff.h"
 #include "i2s_common.h"
-#include "lvgl.h"
 #include "stm32f4xx_hal.h"
 #include "usart_init.h"
 #include <stdint.h>
@@ -76,7 +75,7 @@ uint32_t wav_find_data_offset(FIL *fp) {
     if (f_read(fp, &chunkSize, 4, &br) != FR_OK || br != 4)
       return 0;
 
-    if (lv_memcmp(chunkId, "data", 4) == 0) {
+    if (memcmp(chunkId, "data", 4) == 0) {
       return offset + 8;
     }
 
@@ -92,7 +91,7 @@ void get_file_header(FIL *fil, Wav_Header_t *header) {
 
   f_read(fil, header_buffer, 256, &br);
 
-  lv_memcpy(header, header_buffer, sizeof(*header));
+  memcpy(header, header_buffer, sizeof(*header));
 
   hprintf_formatted("header chunk_id: %d\r\n", header->chunk_id);
   hprintf_formatted("header chunk_size: %d\r\n", header->chunk_size);

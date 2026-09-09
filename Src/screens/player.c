@@ -8,6 +8,8 @@
 #include "oled_sh1107.h"
 #include "screens/router.h"
 #include "usart_init.h"
+#include <stdio.h>
+#include <string.h>
 
 extern Audio_Data_t audio_data;
 extern Buttons_Set_t buttons_set;
@@ -61,7 +63,7 @@ static void rerender_player() {
   uint8_t left_level = get_channel_level(audio_data.audio_peak_left);
   uint8_t right_level = get_channel_level(audio_data.audio_peak_right);
 
-  lv_memset(buffer, 0, sizeof(buffer));
+  memset(buffer, 0, sizeof(buffer));
 
   lv_snprintf(buffer, sizeof(buffer), "%04X\n%04X", audio_data.audio_buffer[0],
               audio_data.audio_buffer[4]);
@@ -167,8 +169,8 @@ lv_obj_t *create_player_screen(void) {
   // ===================================================
   track_duration = lv_label_create(player_screen);
   char buffer[16];
-  lv_snprintf(buffer, sizeof(buffer), "%d",
-              audio_data.chunk_size / audio_data.byte_rate);
+  snprintf(buffer, sizeof(buffer), "%d",
+           audio_data.chunk_size / audio_data.byte_rate);
   lv_label_set_text(track_duration, buffer);
   lv_obj_set_width(track_duration, OLED_WIDTH);
 
