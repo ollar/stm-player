@@ -29,6 +29,7 @@ CFLAGS += -Os
 # CFLAGS += -O0
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -Wl,--no-warn-rwx-segments
+CFLAGS += -isystem ./xpacks/@xpack-dev-tools/arm-none-eabi-gcc/.content/arm-none-eabi/include
 
 ASFLAGS = $(CPU) -mthumb
 
