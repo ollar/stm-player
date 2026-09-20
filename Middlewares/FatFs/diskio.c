@@ -7,10 +7,10 @@
 /* storage control modules to the FatFs module with a defined API.       */
 /*-----------------------------------------------------------------------*/
 
-#include "ff.h" /* Basic definitions of FatFs */
-
 #include "diskio.h" /* Declarations FatFs MAI */
-#include "sd_functions.h"
+#include "ff.h"     /* Basic definitions of FatFs */
+
+#include "usb_utils.h"
 
 /*-----------------------------------------------------------------------*/
 /* Get Drive Status                                                      */
@@ -18,7 +18,7 @@
 
 DSTATUS disk_status(BYTE pdrv /* Physical drive nmuber to identify the drive */
 ) {
-  return SD_disk_status(pdrv);
+  return USBH_MSC_status(pdrv);
 }
 
 /*-----------------------------------------------------------------------*/
@@ -28,13 +28,7 @@ DSTATUS disk_status(BYTE pdrv /* Physical drive nmuber to identify the drive */
 DSTATUS
 disk_initialize(BYTE pdrv /* Physical drive nmuber to identify the drive */
 ) {
-  DSTATUS res = SD_disk_initialize(pdrv);
-
-  if (res == FR_OK) {
-    SD_Increase_Speed();
-  }
-
-  return res;
+  return USBH_MSC_initialize(pdrv);
 }
 
 /*-----------------------------------------------------------------------*/
@@ -46,7 +40,7 @@ DRESULT disk_read(BYTE pdrv,  /* Physical drive nmuber to identify the drive */
                   LBA_t sector, /* Start sector in LBA */
                   UINT count    /* Number of sectors to read */
 ) {
-  return SD_disk_read(pdrv, buff, sector, count);
+  return USBH_MSC_read(pdrv, buff, sector, count);
 }
 
 /*-----------------------------------------------------------------------*/
@@ -60,7 +54,39 @@ DRESULT disk_write(BYTE pdrv, /* Physical drive nmuber to identify the drive */
                    LBA_t sector,     /* Start sector in LBA */
                    UINT count        /* Number of sectors to write */
 ) {
-  return SD_disk_write(pdrv, buff, sector, count);
+  DRESULT res;
+  int result;
+
+  switch (pdrv) {
+  case DEV_RAM:
+    // translate the arguments here
+
+    result = RAM_disk_write(buff, sector, count);
+
+    // translate the reslut code here
+
+    return res;
+
+  case DEV_MMC:
+    // translate the arguments here
+
+    result = MMC_disk_write(buff, sector, count);
+
+    // translate the reslut code here
+
+    return res;
+
+  case DEV_USB:
+    // translate the arguments here
+
+    result = USB_disk_write(buff, sector, count);
+
+    // translate the reslut code here
+
+    return res;
+  }
+
+  return RES_PARERR;
 }
 
 #endif
@@ -73,5 +99,5 @@ DRESULT disk_ioctl(BYTE pdrv, /* Physical drive nmuber (0..) */
                    BYTE cmd,  /* Control code */
                    void *buff /* Buffer to send/receive control data */
 ) {
-  return SD_disk_ioctl(pdrv, cmd, buff);
+  return USBH_MSC_ioctl(pdrv, cmd, buff);
 }

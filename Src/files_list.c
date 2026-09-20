@@ -2,6 +2,7 @@
 #include "ff.h"
 #include "lvgl.h"
 #include "stm32f4xx_hal.h"
+#include "usart_init.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -86,6 +87,8 @@ HAL_StatusTypeDef get_sd_files_list(void) {
 
   f_mount(NULL, "", 0);
   res = f_mount(&fs, "", 1);
+
+  hprintf_formatted("%d\r\n", res);
 
   if (res != FR_OK) {
     return HAL_ERROR;

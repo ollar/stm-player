@@ -37,9 +37,9 @@
 /* Private variables ---------------------------------------------------------*/
 extern uint32_t system_tick;
 extern uint32_t screen_sleep_timer_tick, sleep_timer_tick;
-extern uint16_t Timer1, Timer2;
 extern I2S_HandleTypeDef hi2s;
 extern DMA_HandleTypeDef hdma_spi3_tx;
+extern HCD_HandleTypeDef hhcd;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -129,10 +129,6 @@ void PendSV_Handler(void) {}
  */
 void SysTick_Handler(void) {
   HAL_IncTick();
-  if (Timer1 > 0)
-    Timer1--;
-  if (Timer2 > 0)
-    Timer2--;
   system_tick++;
   sleep_timer_tick++;
   screen_sleep_timer_tick++;
@@ -144,3 +140,5 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {}
 void DMA1_Stream7_IRQHandler(void) { HAL_DMA_IRQHandler(&hdma_spi3_tx); }
 
 void SPI3_IRQHandler(void) { HAL_I2S_IRQHandler(&hi2s); }
+
+void OTG_FS_IRQHandler(void) { HAL_HCD_IRQHandler(&hhcd); }

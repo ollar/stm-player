@@ -6,12 +6,12 @@
 #include "stm32f4xx_hal_def.h"
 #include "stm32f4xx_hal_gpio.h"
 #include "usart_init.h"
+#include "usb_utils.h"
 #include <stdint.h>
 #include <string.h>
 
 #include "files_list.h"
 #include "screens/router.h"
-#include "sd_spi.h"
 
 #include "button.h"
 #include "encoder.h"
@@ -25,6 +25,14 @@ volatile uint32_t sleep_timer_tick = 0;
 static void my_rerender_timer_cb(lv_timer_t *timer) {
   if (rerender_func != NULL) {
     rerender_func();
+  }
+}
+
+static void Error_Handler(void) {
+  hprintf("[FATAL] Error handler\r\n");
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+
+  while (1) {
   }
 }
 
@@ -47,12 +55,9 @@ int main(void) {
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
   uint32_t last_led_toggle = 0;
 
-  /**
-   * Initialize SD card
-   */
-  SD_InitSPI();
-  HAL_Delay(10);
-  SD_InitDMA();
+  if (usb_init() == HAL_ERROR) {
+    Error_Handler();
+  }
 
   /**
    * Initialize screen
@@ -88,14 +93,16 @@ int main(void) {
       lv_timer_handler();
       buttons_listen_change();
       encoder_listen_change();
-      listen_for_sleep_mode();
-      listen_for_screensave();
+      // listen_for_sleep_mode();
+      // listen_for_screensave();
     }
 
     if (system_tick - last_led_toggle >= 200) {
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
       last_led_toggle = system_tick;
     }
+
+    usb_process();
 
     HAL_Delay(5);
   }
@@ -118,7 +125,7 @@ void SystemClock_Config(void) {
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 25;
-  RCC_OscInitStruct.PLL.PLLN = 400;
+  RCC_OscInitStruct.PLL.PLLN = 336;
   RCC_OscInitStruct.PLL.PLLP = 4;
   RCC_OscInitStruct.PLL.PLLQ = 7;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
@@ -126,7 +133,7 @@ void SystemClock_Config(void) {
   }
 
   // HAL_RCC_OscConfig(&RCC_OscInitStruct);
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
+  /* Select PLL as system clock source and conf igure the HCLK, PCLK1 and PCLK2
    * clocks dividers
    */
   RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK |

@@ -17,8 +17,10 @@ INCS = -I CMSIS/Device/Include \
 			-I HAL/Include \
 			-I Middlewares/LVGL \
 			-I Middlewares/LVGL/include \
+			-I Middlewares/stm32-mw-usb-host/Core/Inc \
+			-I Middlewares/stm32-mw-usb-host/Class/MSC/Inc \
 			-I Middlewares/FatFs \
-			-I Src/sd_card/inc \
+			-I Src/usb/inc \
 			-I Src/audio/inc \
 			-I Inc
 
@@ -65,19 +67,26 @@ SRCS += Src/button.c
 SRCS += Src/audio/i2s_init.c
 SRCS += Src/audio/i2s_audio.c
 SRCS += Src/audio/i2s_utils.c
-
-SRCS += Src/sd_card/sd_spi.c 
-SRCS += Src/sd_card/sd_functions.c
+SRCS += Src/usb/usb_utils.c 
 
 SRCS += Src/sleep_mode.c
 
 HAL_C_SOURCES := $(shell find HAL/Src -name '*.c')
 LVGL_C_SOURCES := $(shell find Middlewares/LVGL/src -name '*.c')
-FatFs_C_SOURCES := $(shell find Middlewares/FatFs -name '*.c')
+FATFS_SOURCES := $(shell find Middlewares/FatFs -name '*.c')
+USB_HOST_CORE_SOURCES := $(shell find Middlewares/stm32-mw-usb-host/Core/Src -name '*.c')
+USB_HOST_CLASS_SOURCES := $(shell find Middlewares/stm32-mw-usb-host/Class/MSC/Src -name '*.c')
 
 ASRCS = Startup/startup.s
 
-OBJS = $(ASRCS:.s=.o) $(SRCS:.c=.o) $(HAL_C_SOURCES:.c=.o) $(LVGL_C_SOURCES:.c=.o) $(FatFs_C_SOURCES:.c=.o)
+OBJS = $(ASRCS:.s=.o) 
+OBJS += $(SRCS:.c=.o) 
+OBJS += $(HAL_C_SOURCES:.c=.o) 
+OBJS += $(LVGL_C_SOURCES:.c=.o)
+OBJS += $(USB_HOST_CORE_SOURCES:.c=.o) 
+OBJS += $(USB_HOST_CLASS_SOURCES:.c=.o) 
+OBJS += $(FATFS_SOURCES:.c=.o) 
+# OBJS = $(ASRCS:.s=.o) $(SRCS:.c=.o) $(HAL_C_SOURCES:.c=.o) $(LVGL_C_SOURCES:.c=.o) $(FatFs_C_SOURCES:.c=.o)
 
 # Executable name
 TARGET = blink.elf
