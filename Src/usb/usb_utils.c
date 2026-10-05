@@ -1,8 +1,6 @@
-#include "ff.h"
-#include "files_list.h"
-#include "usart_init.h"
-
+// #include "ff.h"
 #include "usb_utils.h"
+#include "usart_init.h"
 
 USBH_HandleTypeDef hUsb_Host;
 
@@ -10,8 +8,8 @@ static ApplicationTypeDef Appli_state = APPLICATION_IDLE;
 static volatile uint8_t usb_ready = 0;
 static BYTE g_lun = 0;
 
-static FATFS fs; /* FatFS filesystem object (volume) */
-static FIL fil;  /* file object used for reading */
+// static FATFS fs;
+// static FIL fil;
 
 static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id) {
   switch (id) {
@@ -38,79 +36,82 @@ static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id) {
   }
 }
 
-static void usb_read_demo(void) {
-  DIR dir;
-  FRESULT res;
-  FRESULT fr;
-  FILINFO finfo;
-  UINT br;
-  FIL fil;
+// static void usb_read_demo(void) {
+//   DIR dir;
+//   FRESULT res;
+//   FRESULT fr;
+//   FILINFO finfo;
+//   UINT br;
+//   FIL fil;
+//
+//   hprintf("[FS] Mounting volume...\r\n");
+//   res = f_mount(&fs, "", 1); /* mount immediately */
+//   if (res != FR_OK) {
+//     hprintf_formatted("[FS] Mount failed: %d\r\n", (int)res);
+//     return;
+//   }
+//   hprintf("[FS] Mounted\r\n");
+//
+//   res = f_opendir(&dir, "0:/");
+//
+//   if (res != FR_OK) {
+//     hprintf("[FS] dir read error\r\n");
+//     return;
+//   }
+//
+//   while (1) {
+//     res = f_readdir(&dir, &finfo);
+//     if (res != FR_OK || finfo.fname[0] == 0)
+//       break;
+//
+//     hprintf_formatted("file name %s\r\n", finfo.fname);
+//   }
+//
+//   f_closedir(&dir);
+//
+//   char *filename = "11.wav";
+//
+//   fr = f_open(&fil, filename, FA_READ);
+//
+//   uint8_t header_buffer[256];
+//
+//   f_read(&fil, header_buffer, 256, &br);
+//
+//   hprintf_formatted("%s\r\n", header_buffer);
+//
+//   f_close(&fil);
+// }
 
-  hprintf("[FS] Mounting volume...\r\n");
-  res = f_mount(&fs, "", 1); /* mount immediately */
-  if (res != FR_OK) {
-    hprintf_formatted("[FS] Mount failed: %d\r\n", (int)res);
-    return;
-  }
-  hprintf("[FS] Mounted\r\n");
+void (*handle_usb_ready)(void) = &handle_usb_ready_dummy;
+void (*handle_usb_user_disconnected)(void) =
+    &handle_usb_user_disconnected_dummy;
 
-  res = f_opendir(&dir, "0:/");
-
-  if (res != FR_OK) {
-    hprintf("[FS] dir read error\r\n");
-    return;
-  }
-
-  while (1) {
-    res = f_readdir(&dir, &finfo);
-    if (res != FR_OK || finfo.fname[0] == 0)
-      break;
-
-    hprintf_formatted("file name %s\r\n", finfo.fname);
-  }
-
-  f_closedir(&dir);
-
-  char *filename = "11.wav";
-
-  fr = f_open(&fil, filename, FA_READ);
-
-  uint8_t header_buffer[256];
-
-  f_read(&fil, header_buffer, 256, &br);
-
-  hprintf_formatted("%s\r\n", header_buffer);
-
-  f_close(&fil);
-}
-
-HAL_StatusTypeDef usb_init() {
-  /* 1. Initialize the USB Host library.
-   USBH_Init() -> USBH_LL_Init() -> HAL_HCD_Init() configures
-   GPIO, OTG_FS clock, NVIC (see usbh_conf.c) */
+HAL_StatusTypeDef usb_init(void (*new_handle_usb_ready)(void),
+                           void (*new_handle_usb_user_disconnected)(void)) {
   if (USBH_Init(&hUsb_Host, USBH_UserProcess, 0) != USBH_OK) {
     return HAL_ERROR;
   }
 
-  /* 2. Register the MSC class (flash drives / card readers) */
   USBH_RegisterClass(&hUsb_Host, USBH_MSC_CLASS);
-
-  /* 3. Start the host process */
   USBH_Start(&hUsb_Host);
+
+  handle_usb_ready = new_handle_usb_ready;
+  handle_usb_user_disconnected = new_handle_usb_user_disconnected;
 
   return HAL_OK;
 }
 
 void usb_process() {
-  /* Drive the host state machine (enumeration / MSC polling) */
   USBH_Process(&hUsb_Host);
 
-  /* Run the FatFS demo once the MSC LUN is fully initialized
-     (HOST_USER_CLASS_ACTIVE fired after READ CAPACITY) */
   if (usb_ready && (Appli_state == APPLICATION_IDLE)) {
-    // usb_read_demo();
-    HAL_StatusTypeDef res = get_sd_files_list();
+    handle_usb_ready();
     Appli_state = APPLICATION_READY;
+  }
+
+  if (!usb_ready && (Appli_state == APPLICATION_DISCONNECT)) {
+    // TODO: unmount fs
+    // check this
   }
 }
 

@@ -34,11 +34,11 @@ lv_obj_t *create_main_screen(void) {
   lv_obj_set_style_pad_all(screen_main, 0, 0);
   roller_main = lv_roller_create(screen_main);
 
-  HAL_StatusTypeDef res = get_sd_files_list();
-
-  if (res != HAL_OK) {
-    return fallback_to_nocard_screen();
-  }
+  // HAL_StatusTypeDef res = get_sd_files_list();
+  //
+  // if (res != HAL_OK) {
+  //   return fallback_to_nocard_screen();
+  // }
 
   lv_roller_set_options(roller_main, files_list.options_string,
                         LV_ROLLER_MODE_INFINITE);

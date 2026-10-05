@@ -8,7 +8,6 @@
 #include <string.h>
 
 Files_list_t files_list = {0};
-FATFS fs;
 
 static void create_files_list(void) {
   files_list.current = 0;
@@ -84,15 +83,6 @@ HAL_StatusTypeDef get_sd_files_list(void) {
   FRESULT res;
   DIR dir;
   FILINFO finfo;
-
-  f_mount(NULL, "", 0);
-  res = f_mount(&fs, "", 1);
-
-  hprintf_formatted("%d\r\n", res);
-
-  if (res != FR_OK) {
-    return HAL_ERROR;
-  }
 
   create_files_list();
 

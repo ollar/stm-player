@@ -1,6 +1,7 @@
 #include "button.h"
 #include "lvgl.h"
 #include "oled_sh1107.h"
+#include "usart_init.h"
 
 extern Buttons_Set_t buttons_set;
 

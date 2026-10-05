@@ -31,12 +31,21 @@ uint32_t get_i2s_audiofreq(Wav_Header_t *header) {
   }
 }
 
+// uint32_t get_i2s_buffer_size(Wav_Header_t *header) {
+//   switch (header->sample_rate) {
+//   case 96000:
+//     return 1024;
+//   default:
+//     return 512;
+//   }
+// }
+
 uint32_t get_i2s_buffer_size(Wav_Header_t *header) {
   switch (header->sample_rate) {
   case 96000:
-    return 1024;
+    return 1024 * 4;
   default:
-    return 512;
+    return 512 * 4;
   }
 }
 

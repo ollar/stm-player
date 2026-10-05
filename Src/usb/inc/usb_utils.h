@@ -15,8 +15,11 @@ typedef enum {
 
 static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id);
 
+static void handle_usb_ready_dummy() {};
+static void handle_usb_user_disconnected_dummy() {};
+
 static void usb_read_demo(void);
-HAL_StatusTypeDef usb_init(void);
+HAL_StatusTypeDef usb_init(void (*)(void), void (*)(void));
 void usb_process(void);
 
 DSTATUS USBH_MSC_status(BYTE pdrv);

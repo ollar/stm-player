@@ -2,6 +2,7 @@
 #include "button.h"
 #include "lv_port_disp.h"
 #include "lvgl.h"
+#include "screens/player.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_def.h"
 #include "stm32f4xx_hal_gpio.h"
@@ -18,9 +19,11 @@
 
 #include "sleep_mode.h"
 
+extern Player_state_t player_state;
 volatile uint32_t system_tick = 0;
 volatile uint32_t screen_sleep_timer_tick = 0;
 volatile uint32_t sleep_timer_tick = 0;
+FATFS fs;
 
 static void my_rerender_timer_cb(lv_timer_t *timer) {
   if (rerender_func != NULL) {
@@ -36,6 +39,31 @@ static void Error_Handler(void) {
   }
 }
 
+void on_usb_ready(void) {
+  FRESULT res;
+
+  res = f_mount(&fs, "", 1);
+
+  hprintf_formatted("%d\r\n", res);
+
+  if (res != FR_OK) {
+    return;
+  }
+
+  HAL_StatusTypeDef files_list_result = get_sd_files_list();
+
+  if (files_list_result != HAL_OK) {
+    transition_to_screen(NO_SD_CARD_SCREEN);
+  } else {
+    transition_to_screen(TRACKLIST_SCREEN);
+  }
+}
+
+void on_usb_user_disconnected() {
+  f_mount(NULL, "", 0);
+  transition_to_screen(NO_SD_CARD_SCREEN);
+}
+
 int main(void) {
   /*
    * Initialize board
@@ -47,6 +75,8 @@ int main(void) {
   /**
    * Initialize debugging led
    */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   GPIO_InitTypeDef gpio = {0};
   gpio.Pin = GPIO_PIN_13;
@@ -54,10 +84,6 @@ int main(void) {
   HAL_GPIO_Init(GPIOC, &gpio);
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
   uint32_t last_led_toggle = 0;
-
-  if (usb_init() == HAL_ERROR) {
-    Error_Handler();
-  }
 
   /**
    * Initialize screen
@@ -74,16 +100,15 @@ int main(void) {
   encoder_init();
   button_init(BUTTON_PORT, BUTTON_PIN, GPIO_MODE_IT_FALLING);
 
+  transition_to_screen(NO_SD_CARD_SCREEN);
+
+  if (usb_init(on_usb_ready, on_usb_user_disconnected) == HAL_ERROR) {
+    Error_Handler();
+  }
+
   /**
    * Main program code
    */
-  HAL_StatusTypeDef res = get_sd_files_list();
-
-  if (res != HAL_OK) {
-    transition_to_screen(NO_SD_CARD_SCREEN);
-  } else {
-    transition_to_screen(TRACKLIST_SCREEN);
-  }
 
   hprintf("mehe\r\n");
 
@@ -93,8 +118,8 @@ int main(void) {
       lv_timer_handler();
       buttons_listen_change();
       encoder_listen_change();
-      // listen_for_sleep_mode();
-      // listen_for_screensave();
+      listen_for_sleep_mode();
+      listen_for_screensave();
     }
 
     if (system_tick - last_led_toggle >= 200) {
@@ -102,7 +127,8 @@ int main(void) {
       last_led_toggle = system_tick;
     }
 
-    usb_process();
+    if (!player_state.is_playing)
+      usb_process();
 
     HAL_Delay(5);
   }
@@ -150,6 +176,7 @@ void SystemClock_Config(void) {
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2S;
   PeriphClkInitStruct.PLLI2S.PLLI2SM = 25;
   PeriphClkInitStruct.PLLI2S.PLLI2SN = 246;
+  // PeriphClkInitStruct.PLLI2S.PLLI2SN = 192;
   PeriphClkInitStruct.PLLI2S.PLLI2SR = 2;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
     hprintf("PLLI2S init failed\r\n");

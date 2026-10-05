@@ -42,7 +42,11 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s_ptr) {
   hdma_spi3_tx.Init.Mode = DMA_CIRCULAR;
   hdma_spi3_tx.Init.Priority = DMA_PRIORITY_HIGH;
   hdma_spi3_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-  HAL_DMA_Init(&hdma_spi3_tx);
+  // HAL_DMA_Init(&hdma_spi3_tx);
+
+  if (HAL_DMA_Init(&hdma_spi3_tx) != HAL_OK) {
+    hprintf("DMA INIT ERROR\r\n");
+  }
 
   __HAL_LINKDMA(hi2s_ptr, hdmatx, hdma_spi3_tx);
 
